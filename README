@@ -1,0 +1,15 @@
+To get it working, you have to run these in order:
+
+For my environment i created a virtual environment using .venv and Python 3.9.6
+
+Retrieving file paths
+1. retrievefiles.py
+
+Run pose estimation
+2. pose_tracking.py
+
+Run Fall Detection Model tracking
+3. train.py
+
+Converting annotated frames to videos
+4. frame_to_video.py
