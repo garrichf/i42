@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.optimizers.schedules import ExponentialDecay
+from datetime import datetime
+import os
 
 
 # Load the CSV file
@@ -53,7 +55,8 @@ labels = np.array(labels)
 
 # Padding sequences to the maximum length
 # Ensure right padding ('post), left padding is ('pre')
-padded_sequences = pad_sequences(sequences, padding='post', dtype='float32')
+padded_sequences = pad_sequences(sequences, padding='post', value=0.0, dtype='float32')
+print(padded_sequences[0])
 
 # Convert labels to categorical
 '''
@@ -67,11 +70,12 @@ padded_sequences, categorical_labels = shuffle(padded_sequences, categorical_lab
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(padded_sequences, categorical_labels, test_size=0.2, random_state=42)
 
+
 # Now, padded_sequences can be used as input to the LSTM model.
 # Define the LSTM model
 model = Sequential()
 model.add(Masking(mask_value=0.0, input_shape=(None, X_train.shape[2])))  # Input shape: (timesteps, features)
-model.add(LSTM(256, return_sequences=False, use_cudnn=False))  # LSTM layer with 256 units
+model.add(LSTM(256, return_sequences=False, use_bias=False))  # LSTM layer with 256 units
 model.add(Dropout(0.2))  # Dropout layer
 model.add(Dense(64, activation='relu'))  # Dense layer with 64 units
 model.add(Dropout(0.2))  # Dropout layer
@@ -104,7 +108,10 @@ early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weig
 history = model.fit(X_train,y_train, batch_size=32, epochs=300, validation_split=0.2, callbacks=[early_stopping])
 
 # Save the trained model
-model.save('falldetection_version1_090924.keras')
+# current_datetime = datetime.now()
+# formatted_filename_modelname = current_datetime('falldetection_version_%d%m%Y%H%M.keras')
+formatted_filename_modelname = "falldetect_test.h5"
+model.save(formatted_filename_modelname)
 
 
 
@@ -148,3 +155,28 @@ plt.show()
 
 # Print classification report
 print(classification_report(y_true, y_pred_classes, target_names=[str(cls) for cls in np.unique(labels)]))
+
+import matplotlib.pyplot as plt
+
+# Assume X_test contains image data in a format like (num_samples, height, width, channels)
+
+# Set up a grid to display images
+fig, axes = plt.subplots(8, 8, figsize=(10, 10))  # 3x3 grid, adjust as needed
+
+# Loop through a few images and their predictions
+for i, ax in enumerate(axes.flat):
+    if i >= len(X_test):
+        break
+    
+    # Display the image
+    ax.imshow(X_test[i], cmap='gray')  # Change 'gray' if images are in color
+    
+    # Set title with true and predicted labels
+    ax.set_title(f"True: {y_true[i]}, Pred: {y_pred_classes[i]}")
+    
+    # Remove axis ticks
+    ax.axis('off')
+
+# Adjust layout
+plt.tight_layout()
+plt.show()
