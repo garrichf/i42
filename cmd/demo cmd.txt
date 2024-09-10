@@ -1,0 +1,166 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows
+
+PS C:\Users\User> cd C:\Users\User\Desktop\fall-detection
+PS C:\Users\User\Desktop\fall-detection>  py -3.10 -m venv .venv_py310_new
+PS C:\Users\User\Desktop\fall-detection> .venv_py310_new\Scripts\activate
+(.venv_py310_new) PS C:\Users\User\Desktop\fall-detection> pip install numpy
+Requirement already satisfied: numpy in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (1.26.4)
+
+[notice] A new release of pip is available: 24.0 -> 24.2
+[notice] To update, run: python.exe -m pip install --upgrade pip
+(.venv_py310_new) PS C:\Users\User\Desktop\fall-detection> pip install ultralytics
+Requirement already satisfied: ultralytics in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (8.2.73)
+Requirement already satisfied: numpy<2.0.0,>=1.23.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics) (1.26.4)
+Requirement already satisfied: matplotlib>=3.3.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics) (3.9.0)
+Requirement already satisfied: opencv-python>=4.6.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics) (4.10.0.84)
+Requirement already satisfied: pillow>=7.1.2 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics) (10.4.0)
+Requirement already satisfied: pyyaml>=5.3.1 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics) (6.0.1)
+Requirement already satisfied: requests>=2.23.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics) (2.32.3)
+Requirement already satisfied: scipy>=1.4.1 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics) (1.14.0)
+Requirement already satisfied: torch>=1.8.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics) (2.0.0)
+Requirement already satisfied: torchvision>=0.9.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics) (0.15.0)
+Requirement already satisfied: tqdm>=4.64.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics) (4.66.5)
+Requirement already satisfied: psutil in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics) (6.0.0)
+Requirement already satisfied: py-cpuinfo in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics) (9.0.0)
+Requirement already satisfied: pandas>=1.1.4 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics) (2.2.2)
+Requirement already satisfied: seaborn>=0.11.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics) (0.13.2)
+Requirement already satisfied: ultralytics-thop>=2.0.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics) (2.0.0)
+Requirement already satisfied: contourpy>=1.0.1 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from matplotlib>=3.3.0->ultralytics) (1.2.1)
+Requirement already satisfied: cycler>=0.10 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from matplotlib>=3.3.0->ultralytics) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from matplotlib>=3.3.0->ultralytics) (4.53.1)
+Requirement already satisfied: kiwisolver>=1.3.1 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from matplotlib>=3.3.0->ultralytics) (1.4.5)
+Requirement already satisfied: packaging>=20.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from matplotlib>=3.3.0->ultralytics) (24.1)
+Requirement already satisfied: pyparsing>=2.3.1 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from matplotlib>=3.3.0->ultralytics) (3.1.2)
+Requirement already satisfied: python-dateutil>=2.7 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from matplotlib>=3.3.0->ultralytics) (2.9.0.post0)
+Requirement already satisfied: pytz>=2020.1 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from pandas>=1.1.4->ultralytics) (2024.1)
+Requirement already satisfied: tzdata>=2022.7 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from pandas>=1.1.4->ultralytics) (2024.1)
+Requirement already satisfied: charset-normalizer<4,>=2 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from requests>=2.23.0->ultralytics) (3.3.2)
+Requirement already satisfied: idna<4,>=2.5 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from requests>=2.23.0->ultralytics) (3.7)
+Requirement already satisfied: urllib3<3,>=1.21.1 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from requests>=2.23.0->ultralytics) (2.2.2)
+Requirement already satisfied: certifi>=2017.4.17 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from requests>=2.23.0->ultralytics) (2024.7.4)
+Requirement already satisfied: filelock in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from torch>=1.8.0->ultralytics) (3.13.1)
+Requirement already satisfied: typing-extensions in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from torch>=1.8.0->ultralytics) (4.9.0)
+Requirement already satisfied: sympy in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from torch>=1.8.0->ultralytics) (1.12)
+Requirement already satisfied: networkx in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from torch>=1.8.0->ultralytics) (3.2.1)
+Requirement already satisfied: jinja2 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from torch>=1.8.0->ultralytics) (3.1.3)
+Requirement already satisfied: colorama in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from tqdm>=4.64.0->ultralytics) (0.4.6)
+Requirement already satisfied: six>=1.5 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from python-dateutil>=2.7->matplotlib>=3.3.0->ultralytics) (1.16.0)
+Requirement already satisfied: MarkupSafe>=2.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from jinja2->torch>=1.8.0->ultralytics) (2.1.5)
+Requirement already satisfied: mpmath>=0.19 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from sympy->torch>=1.8.0->ultralytics) (1.3.0)
+
+[notice] A new release of pip is available: 24.0 -> 24.2
+[notice] To update, run: python.exe -m pip install --upgrade pip
+(.venv_py310_new) PS C:\Users\User\Desktop\fall-detection>  pip install -r requirements.txt
+Requirement already satisfied: numpy>=1.18.5 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from -r requirements.txt (line 1)) (1.26.4)
+Requirement already satisfied: Pillow>=7.1.2 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from -r requirements.txt (line 2)) (10.4.0)
+Requirement already satisfied: PyYAML>=5.3.1 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from -r requirements.txt (line 3)) (6.0.1)
+Requirement already satisfied: ultralytics>=8.0.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from -r requirements.txt (line 4)) (8.2.73)
+Requirement already satisfied: torch>=1.7.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from -r requirements.txt (line 5)) (2.0.0)
+Requirement already satisfied: torchvision>=0.8.1 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from -r requirements.txt (line 6)) (0.15.0)
+Requirement already satisfied: opencv-python>=4.1.2 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from -r requirements.txt (line 7)) (4.10.0.84)
+Requirement already satisfied: matplotlib>=3.3.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics>=8.0.0->-r requirements.txt (line 4)) (3.9.0)
+Requirement already satisfied: requests>=2.23.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics>=8.0.0->-r requirements.txt (line 4)) (2.32.3)
+Requirement already satisfied: scipy>=1.4.1 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics>=8.0.0->-r requirements.txt (line 4)) (1.14.0)
+Requirement already satisfied: tqdm>=4.64.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics>=8.0.0->-r requirements.txt (line 4)) (4.66.5)
+Requirement already satisfied: psutil in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics>=8.0.0->-r requirements.txt (line 4)) (6.0.0)
+Requirement already satisfied: py-cpuinfo in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics>=8.0.0->-r requirements.txt (line 4))(9.0.0)
+Requirement already satisfied: pandas>=1.1.4 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics>=8.0.0->-r requirements.txt (line 4)) (2.2.2)
+Requirement already satisfied: seaborn>=0.11.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics>=8.0.0->-r requirements.txt (line 4)) (0.13.2)
+Requirement already satisfied: ultralytics-thop>=2.0.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from ultralytics>=8.0.0->-r requirements.txt (line 4)) (2.0.0)
+Requirement already satisfied: filelock in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from torch>=1.7.0->-r requirements.txt (line 5)) (3.13.1)
+Requirement already satisfied: typing-extensions in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from torch>=1.7.0->-r requirements.txt (line 5)) (4.9.0)
+Requirement already satisfied: sympy in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from torch>=1.7.0->-r requirements.txt (line 5)) (1.12)
+Requirement already satisfied: networkx in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from torch>=1.7.0->-r requirements.txt (line 5)) (3.2.1)
+Requirement already satisfied: jinja2 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from torch>=1.7.0->-r requirements.txt (line 5)) (3.1.3)
+Requirement already satisfied: contourpy>=1.0.1 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from matplotlib>=3.3.0->ultralytics>=8.0.0->-r requirements.txt (line 4)) (1.2.1)
+Requirement already satisfied: cycler>=0.10 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from matplotlib>=3.3.0->ultralytics>=8.0.0->-r requirements.txt (line 4)) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from matplotlib>=3.3.0->ultralytics>=8.0.0->-r requirements.txt (line 4)) (4.53.1)
+Requirement already satisfied: kiwisolver>=1.3.1 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from matplotlib>=3.3.0->ultralytics>=8.0.0->-r requirements.txt (line 4)) (1.4.5)
+Requirement already satisfied: packaging>=20.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from matplotlib>=3.3.0->ultralytics>=8.0.0->-r requirements.txt (line 4)) (24.1)
+Requirement already satisfied: pyparsing>=2.3.1 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from matplotlib>=3.3.0->ultralytics>=8.0.0->-r requirements.txt (line 4)) (3.1.2)
+Requirement already satisfied: python-dateutil>=2.7 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from matplotlib>=3.3.0->ultralytics>=8.0.0->-r requirements.txt (line 4)) (2.9.0.post0)
+Requirement already satisfied: pytz>=2020.1 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from pandas>=1.1.4->ultralytics>=8.0.0->-r requirements.txt (line 4)) (2024.1)
+Requirement already satisfied: tzdata>=2022.7 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from pandas>=1.1.4->ultralytics>=8.0.0->-r requirements.txt (line 4)) (2024.1)
+Requirement already satisfied: charset-normalizer<4,>=2 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from requests>=2.23.0->ultralytics>=8.0.0->-r requirements.txt (line 4)) (3.3.2)
+Requirement already satisfied: idna<4,>=2.5 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from requests>=2.23.0->ultralytics>=8.0.0->-r requirements.txt (line 4)) (3.7)
+Requirement already satisfied: urllib3<3,>=1.21.1 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from requests>=2.23.0->ultralytics>=8.0.0->-r requirements.txt (line 4)) (2.2.2)
+Requirement already satisfied: certifi>=2017.4.17 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from requests>=2.23.0->ultralytics>=8.0.0->-r requirements.txt (line 4)) (2024.7.4)
+Requirement already satisfied: colorama in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from tqdm>=4.64.0->ultralytics>=8.0.0->-r requirements.txt (line 4)) (0.4.6)
+Requirement already satisfied: MarkupSafe>=2.0 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from jinja2->torch>=1.7.0->-r requirements.txt (line 5)) (2.1.5)
+Requirement already satisfied: mpmath>=0.19 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from sympy->torch>=1.7.0->-r requirements.txt (line 5)) (1.3.0)
+Requirement already satisfied: six>=1.5 in c:\users\user\desktop\fall-detection\.venv_py310_new\lib\site-packages (from python-dateutil>=2.7->matplotlib>=3.3.0->ultralytics>=8.0.0->-r requirements.txt (line 4)) (1.16.0)
+
+[notice] A new release of pip is available: 24.0 -> 24.2
+[notice] To update, run: python.exe -m pip install --upgrade pip
+(.venv_py310_new) PS C:\Users\User\Desktop\fall-detection> python demo-fall-detection-cmd.py --image_1 image1.jpg --image_2 image2.jpg
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\fall-detection\demo-fall-detection-cmd.py", line 78, in<module>
+    img1 = Image.open(p.image_1)
+  File "C:\Users\User\Desktop\fall-detection\.venv_py310_new\lib\site-packages\PIL\Image.py", line 3431, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\User\\Desktop\\fall-detection\\image1.jpg'
+(.venv_py310_new) PS C:\Users\User\Desktop\fall-detection> python demo-fall-detection-cmd.py --image_1 C:\Users\User\Desktop\fall-detection\fall_dataset\fall\1.jpg --image_2 C:\Users\User\Desktop\fall-detection\fall_dataset\fall\2.jpg
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\fall-detection\demo-fall-detection-cmd.py", line 82, in<module>
+    response = Fall_prediction(img1, img2, img3)
+  File "C:\Users\User\Desktop\fall-detection\demo-fall-detection-cmd.py", line 42, inFall_prediction
+    model = YOLO(r'C:\Users\User\Desktop\fall-detection\yolov8n_pose.pt')
+  File "C:\Users\User\Desktop\fall-detection\.venv_py310_new\lib\site-packages\ultralytics\models\yolo\model.py", line 23, in __init__
+    super().__init__(model=model, task=task, verbose=verbose)
+  File "C:\Users\User\Desktop\fall-detection\.venv_py310_new\lib\site-packages\ultralytics\engine\model.py", line 142, in __init__
+    self._load(model, task=task)
+  File "C:\Users\User\Desktop\fall-detection\.venv_py310_new\lib\site-packages\ultralytics\engine\model.py", line 294, in _load
+    self.model, self.ckpt = attempt_load_one_weight(weights)
+  File "C:\Users\User\Desktop\fall-detection\.venv_py310_new\lib\site-packages\ultralytics\nn\tasks.py", line 855, in attempt_load_one_weight
+    ckpt, weight = torch_safe_load(weight)  # load ckpt
+  File "C:\Users\User\Desktop\fall-detection\.venv_py310_new\lib\site-packages\ultralytics\nn\tasks.py", line 781, in torch_safe_load
+    ckpt = torch.load(file, map_location="cpu")
+  File "C:\Users\User\Desktop\fall-detection\.venv_py310_new\lib\site-packages\ultralytics\utils\patches.py", line 86, in torch_load
+    return _torch_load(*args, **kwargs)
+  File "C:\Users\User\Desktop\fall-detection\.venv_py310_new\lib\site-packages\torch\serialization.py", line 791, in load
+    with _open_file_like(f, 'rb') as opened_file:
+  File "C:\Users\User\Desktop\fall-detection\.venv_py310_new\lib\site-packages\torch\serialization.py", line 271, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+  File "C:\Users\User\Desktop\fall-detection\.venv_py310_new\lib\site-packages\torch\serialization.py", line 252, in __init__
+    super().__init__(open(name, mode))
+FileNotFoundError: [Errno 2] No such file or directory: 'C:python demo-fall-detection-cmd.py --image_1 C:\Users\User\Desktop\fall-detection\fall_dataset\fall\1.jpg --image_2 C:\Users\User\Desktop\fall-detection\fall_dataset\fall\2.jpg
+
+0: 640x640 1 person, 126.2ms
+Speed: 5.0ms preprocess, 126.2ms inference, 9.0ms postprocess per image at shape (1, 3, 640, 640)
+
+0: 640x640 1 person, 94.3ms
+Speed: 2.0ms preprocess, 94.3ms inference, 1.0ms postprocess per image at shape (1, 3, 640, 640)
+There is Fall
+Confidence: 0.8509839773178101
+Angle: Not available with YOLOv8
+Keypoint_corr: Not available with YOLOv8
+(.venv_py310_new) PS C:\Users\User\Desktop\fall-detection> python demo-fall-detection-cmd.py --image_1 C:\Users\User\Desktop\fall-detection\fall_dataset\fall\1.jpg --image_2 C:\Users\User\Desktop\fall-detection\fall_dataset\fall\2.jpg
+
+0: 640x640 1 person, 92.3ms
+Speed: 3.0ms preprocess, 92.3ms inference, 1.0ms postprocess per image at shape (1, 3, 640, 640)
+
+0: 640x640 1 person, 92.8ms
+Speed: 3.0ms preprocess, 92.8ms inference, 1.0ms postprocess per image at shape (1, 3, 640, 640)
+There is Fall
+Confidence: 0.8509839773178101
+Angle: Not available with YOLOv8
+Keypoint_corr: Not available with YOLOv8
+(.venv_py310_new) PS C:\Users\User\Desktop\fall-detection> python demo-fall-detection-cmd.py --image_1 C:\Users\User\Desktop\fall-detection\fall_dataset\no_fall\1.jpg --image_2 C:\Users\User\Desktop\fall-detection\fall_dataset\no_fall\2.jpg
+
+0: 640x640 1 person, 103.1ms
+Speed: 3.3ms preprocess, 103.1ms inference, 1.0ms postprocess per image at shape (1, 3, 640, 640)
+
+0: 640x640 1 person, 102.2ms
+Speed: 3.3ms preprocess, 102.2ms inference, 1.0ms postprocess per image at shape (1, 3, 640, 640)
+There is Fall
+Confidence: 0.8948525190353394
+Angle: Not available with YOLOv8
+Keypoint_corr: Not available with YOLOv8
+(.venv_py310_new) PS C:\Users\User\Desktop\fall-detection> python demo-fall-detection-cmd.py --image_1 C:\Users\User\Desktop\fall-detection\fall_dataset\fall\1.jpg --image_2 C:\Users\User\Desktop\fall-detection\fall_dataset\fall\2.jpgpython demo-fall-detection-cmd.py --image_1 C:\Users\User\Desktop\fall-detection\fall_dataset\fall\1.jpg --image_2 C:\Users\User\Desktop\fall-detection\fall_dataset\fall\2.jpg
+usage: demo-fall-detection-cmd.py [-h] --image_1 IMAGE_1 --image_2 IMAGE_2
+                                  [--image_3 IMAGE_3]
+demo-fall-detection-cmd.py: error: unrecognized arguments: demo-fall-detection-cmd.py
+(.venv_py310_new) PS C:\Users\User\Desktop\fall-detection>

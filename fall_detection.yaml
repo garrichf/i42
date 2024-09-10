@@ -1,0 +1,6 @@
+# fall_dataset.yaml
+train: C:/Users/User/Desktop/fall-detection/fall_dataset/train  # Path to training images
+val: C:/Users/User/Desktop/fall-detection/fall_dataset/val      # Path to validation images
+
+nc: 2  # Number of classes
+names: ['fall', 'no_fall']  # Class names

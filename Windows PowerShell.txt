@@ -1,0 +1,21 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows
+
+PS C:\Users\User>  cd C:\Users\User\Desktop
+PS C:\Users\User\Desktop> cd fall-detection
+PS C:\Users\User\Desktop\fall-detection> python demo-fall-detection.py
+2024-07-18 22:17:09.256374: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environmentvariable `TF_ENABLE_ONEDNN_OPTS=0`.
+2024-07-18 22:17:10.241396: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environmentvariable `TF_ENABLE_ONEDNN_OPTS=0`.
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+There is FALL
+Confidence : 0.8991974592208862
+Angle :  69.17818735314414
+Keypoint_corr : {'left shoulder': [104.0, 113.0], 'left hip': [135.0, 128.0], 'right shoulder': [95.0, 112.0], 'right hip': [138.0, 127.0]}
+PS C:\Users\User\Desktop\fall-detection>  python demo-fall-detection-cmd.py --image_1Images/fall_img_1.png --image_2 Images/fall_img_2.png
+2024-07-18 22:17:32.252907: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environmentvariable `TF_ENABLE_ONEDNN_OPTS=0`.
+2024-07-18 22:17:33.220944: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environmentvariable `TF_ENABLE_ONEDNN_OPTS=0`.
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+There is no fall detetcion...
+PS C:\Users\User\Desktop\fall-detection>
