@@ -50,12 +50,34 @@ def reshape_keypoints(keypoints, expected_size=input_shape):
 def create_feature_vector(keypoints, angle, velocity, acceleration):
     return np.concatenate([keypoints, [angle], [velocity], [acceleration]])
 
-def predict_fall(features):
+def predict_fall(df_keypoints, previous_keypoints):
+    if df_keypoints is None or len(df_keypoints.columns) < 6:
+        return False
+
+    # Calculate angle
+    shoulder = (df_keypoints['keypoint_1'].values[0], df_keypoints['keypoint_2'].values[0])
+    hip = (df_keypoints['keypoint_3'].values[0], df_keypoints['keypoint_4'].values[0])
+    knee = (df_keypoints['keypoint_5'].values[0], df_keypoints['keypoint_6'].values[0])
+    angle = compute_angle(shoulder, hip, knee)
+
+    # Calculate velocity and acceleration
+    keypoint_columns = [col for col in df_keypoints.columns if 'keypoint_' in col]
+    df_with_va = calculate_velocity_acceleration(df_keypoints, keypoint_columns)
+
+    # Extract velocity and acceleration for the latest frame
+    velocity = df_with_va[f'{keypoint_columns[-1]}_velocity'].iloc[-1]
+    acceleration = df_with_va[f'{keypoint_columns[-1]}_acceleration'].iloc[-1]
+
+    # Create feature vector
+    flattened_keypoints = df_keypoints.iloc[0].drop(['Frame', 'Video'])
+    features = create_feature_vector(flattened_keypoints.values, angle, velocity, acceleration)
+
+    # Reshape and predict
     features = reshape_keypoints(features)
     features = np.array(features, dtype=np.float32)
-    features = features.reshape(1, 1, -1)  # Reshape for the model
+    features = features.reshape(1, 1, -1) 
     prediction = fall_detection_model.predict(features)
-    return prediction[0][0] > 0.5
+    return prediction[0][1] > 0.5
 
 def draw_annotations(frame, keypoints, boxes, fall_detected):
     color = (0, 255, 0) if not fall_detected else (0, 0, 255)
@@ -73,10 +95,6 @@ def main(video_source=0):
     cap = cv2.VideoCapture(video_source)
     all_keypoints = pd.DataFrame()
     frame_index = 0
-    angles_list = []
-    velocity_list = []
-    acceleration_list = []
-
     previous_keypoints = None
 
     while True:
@@ -87,35 +105,9 @@ def main(video_source=0):
         df_keypoints, boxes = process_frame(frame, frame_index, video_name="video_1")
         
         if df_keypoints is not None:
-            if len(df_keypoints.columns) >= 6:
-                shoulder = (df_keypoints['keypoint_1'].values[0], df_keypoints['keypoint_2'].values[0])
-                hip = (df_keypoints['keypoint_3'].values[0], df_keypoints['keypoint_4'].values[0])
-                knee = (df_keypoints['keypoint_5'].values[0], df_keypoints['keypoint_6'].values[0])
-                
-                angle = compute_angle(shoulder, hip, knee)
-                angles_list.append(angle)
+            fall_detected = predict_fall(df_keypoints, previous_keypoints)
 
             flattened_keypoints = df_keypoints.iloc[0].drop(['Frame', 'Video'])
-
-            if previous_keypoints is not None:
-                velocity = np.linalg.norm(flattened_keypoints.values - previous_keypoints)
-                velocity_list.append(velocity)
-
-                if len(velocity_list) > 1:
-                    acceleration = velocity_list[-1] - velocity_list[-2]
-                    acceleration_list.append(acceleration)
-                else:
-                    acceleration = 0
-                    acceleration_list.append(acceleration)
-            else:
-                velocity = 0
-                acceleration = 0
-                velocity_list.append(velocity)
-                acceleration_list.append(acceleration)
-
-            features = create_feature_vector(flattened_keypoints.values, angle, velocity, acceleration)
-            fall_detected = predict_fall(features)
-
             frame = draw_annotations(frame, flattened_keypoints.values.reshape(-1, 2), boxes, fall_detected)
             all_keypoints = pd.concat([all_keypoints, df_keypoints], ignore_index=True)
         
@@ -123,19 +115,15 @@ def main(video_source=0):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-        previous_keypoints = flattened_keypoints.values
+        previous_keypoints = df_keypoints
         frame_index += 1
     
     cap.release()
     cv2.destroyAllWindows()
 
     keypoint_columns = [col for col in all_keypoints.columns if 'keypoint_' in col]
-    all_keypoints_with_velocity = calculate_velocity_acceleration(all_keypoints, keypoint_columns)
-    
-    all_keypoints_with_velocity['Angle'] = pd.Series(angles_list)
-    all_keypoints_with_velocity['Velocity'] = pd.Series(velocity_list)
-    all_keypoints_with_velocity['Acceleration'] = pd.Series(acceleration_list)
-    all_keypoints_with_velocity.to_csv("processed_keypoints_with_features.csv", index=False)
+    all_keypoints_with_features = calculate_velocity_acceleration(all_keypoints, keypoint_columns)
+    all_keypoints_with_features.to_csv("processed_keypoints_with_features.csv", index=False)
 
 if __name__ == "__main__":
     main()
