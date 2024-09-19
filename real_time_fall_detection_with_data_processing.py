@@ -22,8 +22,19 @@ def compute_angle(p1, p2, p3):
 
 def add_angles(keypoints):
     angles = {}
-    if len(keypoints) >= 3:
-        angles['Head_Tilt_Angle'] = compute_angle(keypoints[1], keypoints[0], keypoints[2])
+    if len(keypoints) >= 17:  # Assuming COCO keypoint format
+        # Neck angle
+        angles['neck_angle'] = compute_angle(keypoints[5], keypoints[1], keypoints[2])
+        # Spine angle
+        angles['spine_angle'] = compute_angle(keypoints[1], keypoints[8], keypoints[11])
+        # Left knee angle
+        angles['left_knee_angle'] = compute_angle(keypoints[11], keypoints[13], keypoints[15])
+        # Right knee angle
+        angles['right_knee_angle'] = compute_angle(keypoints[12], keypoints[14], keypoints[16])
+        # Left elbow angle
+        angles['left_elbow_angle'] = compute_angle(keypoints[5], keypoints[7], keypoints[9])
+        # Right elbow angle
+        angles['right_elbow_angle'] = compute_angle(keypoints[6], keypoints[8], keypoints[10])
     return angles
 
 def draw_annotations(frame, keypoints, results, fall_detected):
@@ -33,11 +44,8 @@ def draw_annotations(frame, keypoints, results, fall_detected):
     boxes = results[0].boxes.xyxy
     for box in boxes:
         x1, y1, x2, y2 = map(int, box)
-        if fall_detected:
-            color = (0, 0, 255)  # Red for fall detected
-        else:
-            color = (0, 255, 0)  # Green for no fall detected
-        cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)  # Use the selected color
+        color = (0, 0, 255) if fall_detected else (0, 255, 0)
+        cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
     
     return frame
 
@@ -45,16 +53,20 @@ def process_frame(frame, fall_detected):
     results = pose_model(frame)
     keypoints = results[0].keypoints.xy[0]
     keypoints_list = keypoints.tolist()
-    angles = add_angles(keypoints)
+    angles = add_angles(keypoints_list)
     annotated_frame = draw_annotations(frame, keypoints_list, results, fall_detected)
     return annotated_frame, keypoints_list, angles
 
-def predict_fall(features):
+def predict_fall(keypoints, angles):
+    features = [coord for kp in keypoints for coord in kp]
+    features += list(angles.values())
+    
     expected_length = 115
     if len(features) < expected_length:
         features = features + [0] * (expected_length - len(features))
     elif len(features) > expected_length:
         features = features[:expected_length]
+    
     features = np.array(features).reshape(1, 1, -1)
     prediction = fall_detection_model.predict(features)
     return prediction[0][1] > 0.5
@@ -86,21 +98,7 @@ def process_dataset(dataset_dir):
                 if frame is not None:
                     processed_frame, keypoints, angles = process_frame(frame, False)
                     if keypoints:
-                        features_vector = [coord for kp in keypoints for coord in kp]
-                        features_vector += list(angles.values())
-                        velocities = [0] * len(keypoints)
-                        accelerations = [0] * len(keypoints)
-                        features_vector += velocities
-                        features_vector += velocities
-                        features_vector += accelerations
-                        features_vector += accelerations
-
-                        if len(features_vector) > 34:
-                            features_vector = features_vector[:34]
-                        elif len(features_vector) < 34:
-                            continue
-
-                        fall_detected = predict_fall(features_vector)
+                        fall_detected = predict_fall(keypoints, angles)
                         predicted_labels.append(1 if fall_detected else 0)
                         true_labels.append(true_label)
 
@@ -124,6 +122,7 @@ def process_dataset(dataset_dir):
     df.to_csv("processed_data.csv", index=False)
     
     return true_labels, predicted_labels, valid_frames
+
 
 def evaluate_model(true_labels, predicted_labels):
     precision = precision_score(true_labels, predicted_labels)
