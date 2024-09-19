@@ -8,7 +8,7 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 
 # First, I load the YOLO model for pose detection and the fall detection model.
 pose_model = YOLO('yolov8n-pose.pt')  # I might need to update this path if necessary.
-fall_detection_model = load_model("falldetect_test.h5")  # Similarly, I should check this path.
+fall_detection_model = load_model("falldetect_16092024_1307_alldatacombined_reg_reduceplateau.keras")  # Similarly, I should check this path.
 
 def compute_angle(p1, p2, p3):
     """
@@ -67,17 +67,27 @@ def process_frame(frame):
     annotated_frame = draw_annotations(frame, keypoints_list, results)  # I annotate the frame with visual data.
     
     return annotated_frame, keypoints_list, angles
-
 def predict_fall(features):
     """
-    Here, I predict whether a fall has occurred based on extracted features from the video frames.
-    This is crucial for fall detection applications.
+    Predict whether a fall has occurred based on extracted features from video frames.
+    The input features vector is padded or truncated to match the LSTM model input.
     """
-    features = np.array(features).reshape(1, 1, -1)  # I reshape features to match model input requirements.
-    
-    prediction = fall_detection_model.predict(features)  # I get predictions from the fall detection model.
-    
-    return prediction[0][0] > 0.5  # If prediction score is greater than 0.5, I consider it a fall.
+    expected_length = 115  # This should match the LSTM's input size
+
+    # Adjust features vector to match the expected input size of the LSTM model
+    if len(features) < expected_length:
+        # Padding with zeros if features are shorter than expected
+        features = features + [0] * (expected_length - len(features))
+    elif len(features) > expected_length:
+        # Truncating if features are longer than expected
+        features = features[:expected_length]
+
+    features = np.array(features).reshape(1, 1, -1)  # Reshaping to match the LSTM input requirements
+
+    prediction = fall_detection_model.predict(features)  # Get predictions from the model
+
+    return prediction[0][1] > 0.5  # Return True if the prediction is greater than 0.5 (fall detected)
+
 
 def calculate_velocity_acceleration(df):
     """
