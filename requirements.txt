@@ -1,7 +1,8 @@
 opencv-python
 numpy
 pandas
-ultralytics
 tensorflow
+tensorflow-hub
 scikit-learn
-playsound
+ultralytics
+mediapipe
