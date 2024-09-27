@@ -3,18 +3,17 @@ from tkinter import ttk, messagebox
 from datetime import datetime
 
 class Settings:
-    def __init__(self, parent, console, toggle_state_var):
+    def __init__(self, parent, console, toggle_state_var, video_feed):
         self.console = console
         self.toggle_state_var = toggle_state_var
-        self.model_choice = tk.StringVar(value="YOLOv8")  # Default model choice
-        self.confidence_threshold = tk.DoubleVar(value=0.5)  # Default confidence threshold
+        self.video_feed = video_feed
+        self.model_choice = tk.StringVar(value="YOLOv8")  
+        self.confidence_threshold = tk.DoubleVar(value=0.5)  
         self.live_state = tk.BooleanVar(value = False)
     
         # Create a frame for the settings pane within the parent window
         self.settings_frame = tk.Frame(parent, bg="#3E4A52")
         self.settings_frame.grid(row=1, column=1, sticky="nsew", padx=20, pady=10)
-        self.settings_frame.grid_columnconfigure(0, weight=1) 
-
         settings_label = tk.Label(self.settings_frame, text="SETTING", fg="white", bg="#3E4A52", font=("Arial", 12, "bold"))
         settings_label.pack(pady=10)
 
@@ -33,7 +32,7 @@ class Settings:
 
         # Create custom styles for buttons
         style = ttk.Style()
-        style.theme_use('clam')  # Use a theme that supports color customization
+        style.theme_use('clam')  
 
         # Configure styles for Save button
         style.configure('Save.TButton', 
@@ -73,6 +72,7 @@ class Settings:
 
     def save_settings(self):
         # Get the current date and time
+        self.video_feed.update_video_source()
         self.live_state = self.toggle_state_var.get()
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         selected_model = self.model_choice.get()

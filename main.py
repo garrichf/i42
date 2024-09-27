@@ -10,19 +10,16 @@ root.title("Fall Detection System")
 root.geometry("1300x700")  
 root.configure(bg="#2B3A42")
 
-root.grid_columnconfigure(0, weight=8) 
-root.grid_columnconfigure(1, weight=2)  
+root.grid_columnconfigure(0, weight=5) 
+root.grid_columnconfigure(1, weight=1)  
 root.grid_rowconfigure(0, weight=0)  
-root.grid_rowconfigure(1, weight=3)  
+root.grid_rowconfigure(1, weight=4)  
 root.grid_rowconfigure(2, weight=1)  
 
 title_frame = tk.Frame(root, bg="#2B3A42")
 title_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=20, pady=10)
-
 title_label = tk.Label(title_frame, text="FALL DETECTION SYSTEM", fg="white", bg="#2B3A42", font=("Arial", 16, "bold"))
 title_label.pack(side="top", pady=5)  
-
-
 toggle_frame = tk.Frame(title_frame, bg="#2B3A42")
 toggle_frame.pack(side="right")
 toggle_state = tk.BooleanVar(value=False)  
@@ -56,19 +53,8 @@ toggle_canvas.bind("<Button-1>", lambda event: toggle_switch())
 
 toggle_label_right = tk.Label(toggle_frame, text="Live", fg="white", bg="#2B3A42", font=("Arial", 10))
 toggle_label_right.pack(side="left")
-
-
-video_feed = VideoFeed(root)
-
+video_feed = VideoFeed(root, toggle_state)
 console = Console(root)
-#console.console_frame.grid(row=2, column=0, sticky="nsew", padx=20, pady=10)
-
-# Initialize the settings pane
-#settings_frame = tk.Frame(root, width=500, bg="#3E4A52")
-#settings_frame.grid(row=1, column=1, sticky="nsew", padx=20, pady=10)
-settings = Settings(root, console, toggle_state)
-
-# Initialize the history log and place it under the settings pane, next to the console
+settings = Settings(root, console, toggle_state, video_feed)
 history_log = HistoryLog(root)
-history_log.history_frame.grid(row=2, column=1, sticky="nsew", padx=20, pady=10)
 root.mainloop()

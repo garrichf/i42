@@ -5,7 +5,6 @@ class Console:
     def __init__(self, parent):
         # Create a frame for the console
         self.console_frame = tk.Frame(parent, bg="#2B3A42")
-       # self.console_frame.grid(row=2, column=0, columnspan=2, sticky="ew", padx=20, pady=10)
         self.console_frame.grid(row=2, column=0, sticky="nsew", padx=20, pady=10)
 
         # Create a label for the console title
