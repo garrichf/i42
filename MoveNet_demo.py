@@ -70,7 +70,7 @@ def MoveNet_detect_pose_sequence(vid_path):
         # Append the frame keypoints to the all_keypoints list
         all_keypoints.append(frame_keypoints)
 
-        print(f"Processed frame {len(all_keypoints)}")
+        # print(f"Processed frame {len(all_keypoints)}")
     
     df = pd.DataFrame(all_keypoints)
     # Return keypoints for all frames
