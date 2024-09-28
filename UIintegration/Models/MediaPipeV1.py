@@ -133,7 +133,7 @@ def evaluate_model(true_labels, predicted_labels):
     print(f"F1-score: {f1:.4f}")
 
 def main():
-    dataset_path = r"C:\Users\User\Desktop\i42\SmallerDataset"
+    dataset_path = r"C:\Users\User\Desktop\i42\UIintegration\Models\SmallerDataset"
     
     true_labels, predicted_labels = process_dataset(dataset_path)
     
