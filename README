@@ -1,11 +1,14 @@
 To get it working, you have to run these in order:
 
+If you want to run the pose estimation extraction from scratch you need the dataset file, request it from me (Garrich) and you 
+need to come in person because the dataset is 140GB big so i need to give you the thumb drive.
+
 For my environment i created a virtual environment using .venv and Python 3.9.6
 
 I have not properly commented and tidied up the structure of the code yet. Will do soon, this is to upload just to show the progress i have made and if anyone would want to try using what has been made.
 
 Retrieving file paths
-1. retrievefiles_v2.py # Updating to work with the latest dataset structure
+1. retrievefiles_v2.py 
 
 Run pose estimation
 2. pose_tracking.py
