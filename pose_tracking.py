@@ -23,10 +23,6 @@ if not os.path.isfile(output_csv_file):
         writer.writerow([
             'Folder Name', 'File Name','FallType', 
             'Nose_X', 'Nose_Y',
-            'Left Eye_X', 'Left Eye_Y',
-            'Right Eye_X', 'Right Eye_Y',
-            'Left Ear_X', 'Left Ear_Y',
-            'Right Ear_X', 'Right Ear_Y',
             'Left Shoulder_X', 'Left Shoulder_Y',
             'Right Shoulder_X', 'Right Shoulder_Y',
             'Left Elbow_X', 'Left Elbow_Y',
@@ -47,18 +43,6 @@ if os.path.isfile(output_csv_file):
     processed_files = set(zip(processed_df['Folder Name'], processed_df['File Name']))
 else:
     processed_files = set()
-
-# def get_fall_type(file_path):
-#     # Extract the folder name from the file path
-#     folder_name = os.path.basename(os.path.dirname(file_path))
-    
-#     # Check if the folder name contains "nfall" or "fall"
-#     if folder_name.startswith("nfall"):
-#         return 0
-#     elif folder_name.startswith("fall"):
-#         return 1
-#     else:
-#         return None  # Or some other default value or action
 
 def estimate_time_to_completion(start_time, current_row, total_rows):
     elapsed_time = time.time() - start_time
@@ -96,10 +80,6 @@ def process_frame(frame, folder_name, file_name, fall_type):
         writer.writerow([folder_name
                         , file_name, fall_type
                         , kpt_table.get(0, [None, None])[0], kpt_table.get(0, [None, None])[1]
-                        , kpt_table.get(1, [None, None])[0], kpt_table.get(1, [None, None])[1]
-                        , kpt_table.get(2, [None, None])[0], kpt_table.get(2, [None, None])[1]
-                        , kpt_table.get(3, [None, None])[0], kpt_table.get(3, [None, None])[1]
-                        , kpt_table.get(4, [None, None])[0], kpt_table.get(4, [None, None])[1]
                         , kpt_table.get(5, [None, None])[0], kpt_table.get(5, [None, None])[1]
                         , kpt_table.get(6, [None, None])[0], kpt_table.get(6, [None, None])[1]
                         , kpt_table.get(7, [None, None])[0], kpt_table.get(7, [None, None])[1]
