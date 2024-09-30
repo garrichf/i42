@@ -9,10 +9,12 @@ import time
 model = YOLO('yolov8x-pose.pt')
 
 # Read CSV file
-df = pd.read_csv('found_files_v2.csv')
+df = pd.read_csv('found_files_testing.csv')
 
 # Output CSV file
-output_csv_file = 'output_v2.csv'
+output_csv_file = 'output_test_set.csv'
+
+
 
 # Check if output CSV file exists, if not, create it with header
 if not os.path.isfile(output_csv_file):
@@ -38,6 +40,13 @@ if not os.path.isfile(output_csv_file):
             'Left Ankle_X', 'Left Ankle_Y',
             'Right Ankle_X', 'Right Ankle_Y'
         ])
+
+# Check if output CSV file exists and load processed data if it does
+if os.path.isfile(output_csv_file):
+    processed_df = pd.read_csv(output_csv_file)
+    processed_files = set(zip(processed_df['Folder Name'], processed_df['File Name']))
+else:
+    processed_files = set()
 
 # def get_fall_type(file_path):
 #     # Extract the folder name from the file path
@@ -127,6 +136,11 @@ for index, row in df.iterrows():
     file_name_without_extension = os.path.splitext(file_name)[0]
     fall_type = row['Category']
 
+     # Check if the file has already been processed
+    if (folder_name, file_name) in processed_files:
+        print(f"Skipping already processed file: {file_name} in folder: {folder_name}")
+        continue
+
      # Estimate and print time to completion every 10 rows
     remaining_minutes, remaining_seconds = estimate_time_to_completion(start_time, index_row, dataset_size)
     print(f"Processed {index_row}/{dataset_size} rows. Estimated Remaining Time: {remaining_minutes}m {remaining_seconds}s")
@@ -140,7 +154,7 @@ for index, row in df.iterrows():
 
         processed_frame = process_frame(frame, folder_name, file_name, fall_type)
        # Specify the folder where you want to save the file
-        folder_path = "annotated_v2/" + folder_name
+        folder_path = "annotated_test/" + folder_name
 
         # Ensure the folder exists
         os.makedirs(folder_path, exist_ok=True)
@@ -158,23 +172,28 @@ for index, row in df.iterrows():
             print(f"Error reading video file {file_path}")
             continue
 
-        counter = 0
+        counter = 1
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        start_time_video = time.time()
         while cap.isOpened():
             success, frame = cap.read()
             if not success:
                 print(f"Failed to read frame or end of video reached for {file_path}")
                 break
-
-            processed_frame = process_frame(frame, folder_name, file_name, fall_type)
+            # Estimate and print time to completion every 10 rows
+            remaining_minutes_video, remaining_seconds_video = estimate_time_to_completion(start_time_video, counter, frame_count)
+            print(f"{folder_name} : Processed {counter}/{frame_count} Frames. Estimated Remaining Time: {remaining_minutes_video}m {remaining_seconds_video}s")
+            frame_name = f"annotated_Frame{counter}.jpg"
+            processed_frame = process_frame(frame, folder_name, frame_name, fall_type)
             cv2.imshow("Image with Keypoints", processed_frame)
             # Specify the folder where you want to save the file
-            folder_path = "annotated_v2/" + folder_name
+            folder_path = "annotated_test/" + folder_name
 
             # Ensure the folder exists
             os.makedirs(folder_path, exist_ok=True)
 
             # Construct the full path for the output file
-            output_file_path = os.path.join(folder_path, f"annotated_{file_name_without_extension}.jpg")
+            output_file_path = os.path.join(folder_path, frame_name)
             cv2.imwrite(output_file_path, processed_frame)
             counter += 1
 

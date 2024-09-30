@@ -56,14 +56,14 @@ def save_to_csv(data, output_file):
         writer.writerows(data)
 
 # Define the directory to search and the file extensions
-directory_to_search = "Dataset"
+directory_to_search = "Dataset/testing"
 file_extensions = (".mp4", ".jpeg", ".png",".jpg")
 
 # Find all files with the specified extensions
 found_files = find_files(directory_to_search, file_extensions)
 
 # Save the found files to a CSV file
-output_csv = "found_files_v2.csv"
+output_csv = "found_files_testing.csv"
 save_to_csv(found_files, output_csv)
 
 # Print the found files with their folders

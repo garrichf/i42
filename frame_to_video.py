@@ -1,12 +1,17 @@
 import cv2
 import os
+import re
 
 '''
 This code is just to convert the sequence of frames into an mp4 file for easier playback. 
 '''
+# Function to extract the numeric part of the filename
+def extract_frame_number(filename):
+    match = re.search(r'(\d+)', filename)
+    return int(match.group(1)) if match else -1
 
 # Path to the folder containing the subfolders with frames
-base_folder = 'annotated'  # Adjust this path as needed
+base_folder = 'Example'  # Adjust this path as needed
 
 # Iterate over each subfolder in the base folder
 for video_folder in os.listdir(base_folder):
@@ -17,8 +22,8 @@ for video_folder in os.listdir(base_folder):
         output_video_file = os.path.join(base_folder, f"{video_folder}.mp4")
 
         # Get list of frame files in the current subfolder
-        frame_files = [f for f in os.listdir(video_folder_path) if f.endswith(('.png', '.jpg'))]
-        frame_files.sort()  # Ensure files are in the correct order
+        frame_files = [f for f in os.listdir(video_folder_path) if f.endswith(('.png', '.jpg', '.jpeg'))]
+        frame_files.sort(key=extract_frame_number)  # Ensure files are in the correct order
         print(frame_files)
 
         if not frame_files:
