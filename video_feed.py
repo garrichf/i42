@@ -54,3 +54,42 @@ class VideoFeed:
         # Release the webcam when the object is destroyed
         if self.cap.isOpened():
             self.cap.release()
+<<<<<<< Updated upstream
+=======
+
+        self.is_live = self.toggle_state_var.get()
+
+        if self.is_live:
+            self.cap = cv2.VideoCapture(0)
+           
+        else:
+            self.cap = cv2.VideoCapture(self.video_path)
+
+        self.show_frame()
+
+    def show_frame(self):
+        if self.cap is None or not self.cap.isOpened():
+            self.video_label.config(text="Unable to access video source")
+            return
+
+        self.frame_counter += 1
+        if self.frame_counter % 2 == 0:
+            ret, frame = self.cap.read()
+            if ret:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                image = ImageTk.PhotoImage(Image.fromarray(frame))
+                self.video_label.config(image=image)
+                self.video_label.image = image 
+            else:
+                if not self.is_live:
+                    self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  
+
+        self.parent.after(40, self.show_frame)
+
+    def stop_video(self):
+        if self.cap is not None:
+            self.cap.release()
+            self.cap = None
+
+
+>>>>>>> Stashed changes
