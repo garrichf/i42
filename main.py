@@ -4,6 +4,7 @@ from video_feed import VideoFeed
 from setting import Settings
 from console import Console
 from history import HistoryLog
+from datetime import datetime
 
 root = tk.Tk()
 root.title("Fall Detection System")
@@ -23,6 +24,7 @@ title_label.pack(side="top", pady=5)
 toggle_frame = tk.Frame(title_frame, bg="#2B3A42")
 toggle_frame.pack(side="right")
 toggle_state = tk.BooleanVar(value=False)  
+fall_detected = tk.BooleanVar(value=True)  # Boolean value to indicate if a fall has been detected
 
 def toggle_switch():
     if toggle_state.get() == False:
@@ -40,6 +42,31 @@ def toggle_switch():
     toggle_state.set(not toggle_state.get())
 
 
+def trigger_fall_detection():
+    if fall_detected.get():
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        confidence_value = settings.saved_confidence_value
+
+        # Calculate response time (10 seconds after start)
+        response_time = "10 seconds"
+
+        # Popup message
+        if confidence_value is not None:
+            popup_message = (f"Fall detected!\n"
+                            f"Date: {current_time}\n"
+                            f"Response Time: {response_time}\n"
+                            f"Current Confidence Rate: {confidence_value}")
+            tk.messagebox.showwarning("Fall Detection Alert", popup_message)
+
+        # Add message to history log
+            history_message = f"Fall detected on {current_time}"
+            history_log.add_message(history_message)
+   
+def on_closing():
+    with open(settings.settings_file, "w") as file:
+        file.write("")
+    root.destroy()
+
 toggle_label_left = tk.Label(toggle_frame, text="Recorded", fg="white", bg="#2B3A42", font=("Arial", 10))
 toggle_label_left.pack(side="left")
 
@@ -56,5 +83,8 @@ toggle_label_right.pack(side="left")
 video_feed = VideoFeed(root, toggle_state)
 console = Console(root)
 settings = Settings(root, console, toggle_state, video_feed)
+settings.write_defaults_to_file()
 history_log = HistoryLog(root)
+root.after(5000, trigger_fall_detection)  # 10000 ms = 10 seconds
+root.protocol("WM_DELETE_WINDOW", on_closing)
 root.mainloop()

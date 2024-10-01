@@ -10,6 +10,9 @@ class Settings:
         self.model_choice = tk.StringVar(value="YOLOv8")  
         self.confidence_threshold = tk.DoubleVar(value=0.5)  
         self.live_state = tk.BooleanVar(value = False)
+        self.saved_model_choice = "YOLOv8"
+        self.saved_confidence_value = 0.5
+        self.settings_file = "settingpara.txt"
     
         # Create a frame for the settings pane within the parent window
         self.settings_frame = tk.Frame(parent, bg="#3E4A52")
@@ -20,7 +23,7 @@ class Settings:
         # Center-align the model label and dropdown with more vertical space
         model_label = tk.Label(self.settings_frame, text="Pose Estimation Model", fg="white", bg="#3E4A52", font=("Arial", 10))
         model_label.pack(anchor="center", pady=5)
-        model_dropdown = ttk.Combobox(self.settings_frame, values=["YOLOv8", "fefeffe", "Mfefewfswffe"], textvariable=self.model_choice)
+        model_dropdown = ttk.Combobox(self.settings_frame, values=["YOLOv8", "PoseNet", "MediaPipe"], textvariable=self.model_choice)
         model_dropdown.current(0)
         model_dropdown.pack(anchor="center", pady=15)
 
@@ -70,6 +73,11 @@ class Settings:
         reset_button = ttk.Button(button_frame, text="Reset", style='Reset.TButton', command=self.reset_settings)
         reset_button.pack(side="left")
 
+    def write_defaults_to_file(self):
+        with open(self.settings_file, "w") as file:
+            file.write(f"Model: {self.model_choice.get()}\n")
+            file.write(f"Confidence Threshold: {self.confidence_threshold.get()}\n")
+
     def save_settings(self):
         # Get the current date and time
         self.video_feed.update_video_source()
@@ -77,6 +85,8 @@ class Settings:
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         selected_model = self.model_choice.get()
         confidence_value = self.confidence_threshold.get()
+        self.saved_model_choice = selected_model
+        self.saved_confidence_value = confidence_value
         if self.live_state == False:
             live_record = "Recorded"
         else:
@@ -89,6 +99,9 @@ class Settings:
                    f"Model: {selected_model}\n"
                    f"Confidence Threshold: {confidence_value}\n"
                    f"State: {live_record}")
+        with open(self.settings_file, "w") as file:
+            file.write(f"Model: {selected_model}\n")
+            file.write(f"Confidence Threshold: {confidence_value}\n")
 
         messagebox.showinfo("Settings Saved", "The settings have been successfully saved and applied.")
         self.console.add_message(message)
