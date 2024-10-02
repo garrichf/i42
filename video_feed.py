@@ -51,6 +51,9 @@ class VideoFeed:
                     self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  
 
         self.parent.after(40, self.show_frame)
+    
+
+    
 
     def stop_video(self):
         if self.cap is not None:

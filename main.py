@@ -11,15 +11,16 @@ root.title("Fall Detection System")
 root.geometry("1300x700")  
 root.configure(bg="#2B3A42")
 
-root.grid_columnconfigure(0, weight=5) 
-root.grid_columnconfigure(1, weight=1)  
-root.grid_rowconfigure(0, weight=0)  
-root.grid_rowconfigure(1, weight=4)  
-root.grid_rowconfigure(2, weight=1)  
+
+
+root.grid_columnconfigure(0, weight=3)  # More space for video feed
+root.grid_columnconfigure(1, weight=1)  # Less space for settings and history log
+root.grid_rowconfigure(1, weight=1, minsize=150)     # Video feed row weight
+root.grid_rowconfigure(2, weight=3, minsize=300)     # More space for history log
 
 title_frame = tk.Frame(root, bg="#2B3A42")
 title_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=20, pady=10)
-title_label = tk.Label(title_frame, text="FALL DETECTION SYSTEM", fg="white", bg="#2B3A42", font=("Arial", 16, "bold"))
+title_label = tk.Label(title_frame, text="FALL DETECTION SYSTEM", fg="white", bg="#2B3A42", font=("Arial", 40, "bold"))
 title_label.pack(side="top", pady=5)  
 toggle_frame = tk.Frame(title_frame, bg="#2B3A42")
 toggle_frame.pack(side="right")
@@ -67,7 +68,7 @@ def on_closing():
         file.write("")
     root.destroy()
 
-toggle_label_left = tk.Label(toggle_frame, text="Recorded", fg="white", bg="#2B3A42", font=("Arial", 10))
+toggle_label_left = tk.Label(toggle_frame, text="Recorded", fg="white", bg="#2B3A42", font=("Arial", 20))
 toggle_label_left.pack(side="left")
 
 toggle_canvas = tk.Canvas(toggle_frame, width=40, height=22, bg="#2B3A42", highlightthickness=0)
@@ -78,13 +79,17 @@ toggle_button = toggle_canvas.create_oval(4, 4, 18, 18, outline="#FFFFFF", fill=
 
 toggle_canvas.bind("<Button-1>", lambda event: toggle_switch())
 
-toggle_label_right = tk.Label(toggle_frame, text="Live", fg="white", bg="#2B3A42", font=("Arial", 10))
+toggle_label_right = tk.Label(toggle_frame, text="Live", fg="white", bg="#2B3A42", font=("Arial", 20))
 toggle_label_right.pack(side="left")
 video_feed = VideoFeed(root, toggle_state)
+
 console = Console(root)
-settings = Settings(root, console, toggle_state, video_feed)
+console.console_frame.grid(row=2, column=0, sticky="nsew", padx=20, pady=10)
+settings = Settings(root, console=None, toggle_state_var=None, video_feed=video_feed)
+settings.settings_frame.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
 settings.write_defaults_to_file()
 history_log = HistoryLog(root)
+history_log.history_frame.grid(row=2, column=1, sticky="nsew", padx=10, pady=10)
 root.after(5000, trigger_fall_detection)  # 10000 ms = 10 seconds
 root.protocol("WM_DELETE_WINDOW", on_closing)
 root.mainloop()

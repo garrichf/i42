@@ -8,11 +8,11 @@ class Console:
         self.console_frame.grid(row=2, column=0, sticky="nsew", padx=20, pady=10)
 
         # Create a label for the console title
-        console_label = tk.Label(self.console_frame, text="CONSOLE", fg="white", bg="#2B3A42", font=("Arial", 12, "bold"))
+        console_label = tk.Label(self.console_frame, text="CONSOLE", fg="white", bg="#2B3A42", font=("Arial", 30, "bold"))
         console_label.pack(anchor="w", padx=10)
 
         # Create a text widget to display console messages
-        self.text_widget = tk.Text(self.console_frame, height=5, bg="#1C252B", fg="white", font=("Arial", 10))
+        self.text_widget = tk.Text(self.console_frame, height=5, bg="#1C252B", fg="white", font=("Arial", 25))
         self.text_widget.pack(fill="both", expand=True, padx=10, pady=5)
 
         # Disable editing in the text widget
