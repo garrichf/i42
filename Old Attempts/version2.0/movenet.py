@@ -2,7 +2,16 @@
 # Description: This file contains helper functions and the stream inference functions for the MoveNet model.
 # Implemented by Nick Bui adapting MoveNet's codebased https://www.tensorflow.org/hub/tutorials/movenet.
 
-# Comment: This implementation saw the partial completed 
+# Comment:
+# This model saw the basic functions of the MoveNet implementation with successful laod of the model, performing the pose estimation, and drawing the keypoints on the image.
+# There are main 2 functions the user can use to perform the pose estimation on the loaded video or live video stream.
+# Latest Update:
+# - Added the function to convert keypoints with scores to a pandas DataFrame, reorganize the columns, and remove eye and ear columns.
+# - Added the function to draw the bounding box around the detected keypoints. 
+# - Added the function to calculate the acceleration for specified columns in a DataFrame.
+# - Separated the function for loading the video file.
+# - Separated the function for display the processed frame.
+# - Attempt batch processing of frames for pose estimation to improve performance but it is not working as expected.
 
 import tensorflow as tf
 import tensorflow_hub as hub
@@ -517,7 +526,7 @@ def display_processed_frame(frame):
         return False  # Signal to stop the display
     return True  # Continue the display
 
-def infer_from_video_in_batches(video_path, movenet, input_size, init_crop_region, run_inference, draw_prediction_on_image, determine_crop_region, confidence_threshold=0.28, batch_size=10):
+def infer_from_video(video_path, movenet, input_size, init_crop_region, run_inference, draw_prediction_on_image, determine_crop_region, confidence_threshold=0.28, batch_size=10):
     stream = load_video(video_path)
     if stream is None:
         return
