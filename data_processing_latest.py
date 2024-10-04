@@ -2,7 +2,6 @@
 # Description: This file contains data processing functions to generate additional features required by the Fall Detection Model from the original keypoints data.
 # Implemented by Nick Bui, adapting Garrich's codebased main_dataprocess.ipynb and previous data_processing.py
 
-
 import pandas as pd
 import numpy as np
 
