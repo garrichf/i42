@@ -1,59 +1,102 @@
+import cv2
+import mediapipe as mp
 import numpy as np
 import pandas as pd
-from MediaPipe_demo import MediaPipe_detect_pose_sequence
+
+def MediaPipe_detect_pose_sequence(vid_path):
+    """
+    Detects pose keypoints from a video using the MediaPipe model.
+    
+    Parameters:
+    vid_path (str): Path to the input video file.
+    
+    Returns:
+    pd.DataFrame: DataFrame containing keypoints for each frame.
+    """
+    try:
+        mp_pose = mp.solutions.pose
+        pose = mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+        print("MediaPipe Pose Estimation Model loaded successfully.")
+    except Exception as error:
+        print(f"Failed to load the model: {error}")
+        return None
+
+    POSE_CONFIDENCE_THRESHOLD = 0.25
+    vid = cv2.VideoCapture(vid_path)
+    if not vid.isOpened():
+        print("Error: Could not open video.")
+        return None
+
+    all_keypoints = []
+    keypoint_names = [
+        'Nose', 'Left Eye Inner', 'Left Eye', 'Left Eye Outer', 'Right Eye Inner', 'Right Eye', 'Right Eye Outer',
+        'Left Ear', 'Right Ear', 'Mouth Left', 'Mouth Right', 'Left Shoulder', 'Right Shoulder', 'Left Elbow', 
+        'Right Elbow', 'Left Wrist', 'Right Wrist', 'Left Pinky', 'Right Pinky', 'Left Index', 'Right Index', 
+        'Left Thumb', 'Right Thumb', 'Left Hip', 'Right Hip', 'Left Knee', 'Right Knee', 'Left Ankle', 'Right Ankle',
+        'Left Heel', 'Right Heel', 'Left Foot Index', 'Right Foot Index'
+    ]
+
+    while True:
+        ret, frame = vid.read()
+        if not ret:
+            break
+
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results = pose.process(frame_rgb)
+        frame_keypoints = {}
+
+        if results.pose_landmarks:
+            average_confidence = np.mean([landmark.visibility for landmark in results.pose_landmarks.landmark])
+
+            if average_confidence >= POSE_CONFIDENCE_THRESHOLD:
+                for idx, landmark in enumerate(results.pose_landmarks.landmark):
+                    frame_keypoints[f'{keypoint_names[idx]}_X'] = landmark.x
+                    frame_keypoints[f'{keypoint_names[idx]}_Y'] = landmark.y
+
+        all_keypoints.append(frame_keypoints)
+
+    vid.release()
+    df = pd.DataFrame(all_keypoints)
+    return df
 
 def compute_angle(p1, p2, p3):
     """
-    I’m calculating the angle (in degrees) between three points in a 2D plane.
-    The angle is formed at the middle point (p2), with the other two points (p1, p3) as the arms of the angle.
+    Computes the angle between three points in a 2D plane.
     
     Parameters:
-    - p1: The coordinates (x, y) of the first point.
-    - p2: The coordinates (x, y) of the second point (the vertex where the angle is formed).
-    - p3: The coordinates (x, y) of the third point.
-
+    p1, p2, p3 (tuple): Coordinates of the points (x, y).
+    
     Returns:
-    - The angle in degrees between these three points.
+    float: The angle in degrees between the points.
     """
-    # I’ll create vectors between the points first
     v1 = np.array([p1[0] - p2[0], p1[1] - p2[1]])
     v2 = np.array([p3[0] - p2[0], p3[1] - p2[1]])
-
-    # Now, I’ll calculate the angle between these vectors using the dot product
     dot_product = np.dot(v1, v2)
-    magnitude_v1 = np.linalg.norm(v1)  # The magnitude (length) of the first vector
-    magnitude_v2 = np.linalg.norm(v2)  # The magnitude (length) of the second vector
-    cos_angle = dot_product / (magnitude_v1 * magnitude_v2)  # Using the cosine formula
-
-    # Finally, I’ll convert the result from radians to degrees and return it
-    angle = np.degrees(np.arccos(np.clip(cos_angle, -1.0, 1.0)))
-
-    return angle
+    magnitude_v1 = np.linalg.norm(v1)
+    magnitude_v2 = np.linalg.norm(v2)
+    cos_angle = dot_product / (magnitude_v1 * magnitude_v2)
+    return np.degrees(np.arccos(np.clip(cos_angle, -1.0, 1.0)))
 
 def add_angles(df):
     """
-    I’m adding new angles to the DataFrame based on specific body keypoints. 
-    These angles help us understand the posture by calculating the angles between key body parts.
+    Adds calculated angles to the DataFrame based on key body points.
     
     Parameters:
-    - df: A DataFrame containing the keypoint coordinates for body parts (with columns like '{point_name}_X' and '{point_name}_Y').
-
+    df (pd.DataFrame): DataFrame containing body point coordinates.
+    
     Returns:
-    - The updated DataFrame with the additional angles.
+    pd.DataFrame: DataFrame with added angle columns.
     """
-    # Here’s a helper function to calculate an angle between three points in the DataFrame
     def calculate_angle(row, p1_name, p2_name, p3_name):
         p1 = (row[f'{p1_name}_X'], row[f'{p1_name}_Y'])
         p2 = (row[f'{p2_name}_X'], row[f'{p2_name}_Y'])
         p3 = (row[f'{p3_name}_X'], row[f'{p3_name}_Y'])
-        
-        # I only calculate the angle if all coordinates are available (not missing)
-        if all(pd.notna(coord) for coord in p1 + p2 + p3):
+        if all(coord != 0 for coord in p1 + p2 + p3):
             return compute_angle(p1, p2, p3)
         else:
             return np.nan
 
-    # Let's calculate various body angles based on the body keypoints
+    # Calculate all angles similar to the MoveNet version
     df['Head_Tilt_Angle'] = df.apply(lambda row: calculate_angle(row, 'Left Eye', 'Nose', 'Right Eye'), axis=1)
     df['Shoulder_Angle'] = df.apply(lambda row: calculate_angle(row, 'Left Shoulder', 'Right Shoulder', 'Left Hip'), axis=1)
     df['Left_Torso_Incline_Angle'] = df.apply(lambda row: calculate_angle(row, 'Left Hip', 'Left Shoulder', 'Left Elbow'), axis=1)
@@ -70,79 +113,40 @@ def add_angles(df):
 
     return df
 
-# Here's a list of all keypoints I'm working with
-keypoints_columns = [
-    'Nose_X', 'Nose_Y',
-    'Left Eye Inner_X', 'Left Eye Inner_Y',
-    'Left Eye_X', 'Left Eye_Y',
-    'Left Eye Outer_X', 'Left Eye Outer_Y',
-    'Right Eye Inner_X', 'Right Eye Inner_Y',
-    'Right Eye_X', 'Right Eye_Y',
-    'Right Eye Outer_X', 'Right Eye Outer_Y',
-    'Left Ear_X', 'Left Ear_Y',
-    'Right Ear_X', 'Right Ear_Y',
-    'Mouth Left_X', 'Mouth Left_Y',
-    'Mouth Right_X', 'Mouth Right_Y',
-    'Left Shoulder_X', 'Left Shoulder_Y',
-    'Right Shoulder_X', 'Right Shoulder_Y',
-    'Left Elbow_X', 'Left Elbow_Y',
-    'Right Elbow_X', 'Right Elbow_Y',
-    'Left Wrist_X', 'Left Wrist_Y',
-    'Right Wrist_X', 'Right Wrist_Y',
-    'Left Pinky_X', 'Left Pinky_Y',
-    'Right Pinky_X', 'Right Pinky_Y',
-    'Left Index_X', 'Left Index_Y',
-    'Right Index_X', 'Right Index_Y',
-    'Left Thumb_X', 'Left Thumb_Y',
-    'Right Thumb_X', 'Right Thumb_Y',
-    'Left Hip_X', 'Left Hip_Y',
-    'Right Hip_X', 'Right Hip_Y',
-    'Left Knee_X', 'Left Knee_Y',
-    'Right Knee_X', 'Right Knee_Y',
-    'Left Ankle_X', 'Left Ankle_Y',
-    'Right Ankle_X', 'Right Ankle_Y',
-    'Left Heel_X', 'Left Heel_Y',
-    'Right Heel_X', 'Right Heel_Y',
-    'Left Foot Index_X', 'Left Foot Index_Y',
-    'Right Foot Index_X', 'Right Foot Index_Y'
-]
-
-# I’m calculating acceleration for the specified columns here
 def calculate_acceleration(df, columns):
     """
-    For each keypoint, I’m calculating its velocity and acceleration.
-    First, I compute the velocity (change in position), and then I get acceleration by finding the rate of change of velocity.
-
-    Parameters:
-    - df: The DataFrame that contains the keypoints.
-    - columns: The list of keypoints to calculate velocity and acceleration for.
-
-    Returns:
-    - The DataFrame, now with extra columns for velocity and acceleration.
-    """
-    # Check if the input is valid
-    if not isinstance(df, pd.DataFrame):
-        raise TypeError("I expected a pandas DataFrame")
+    Calculate velocity and acceleration for each keypoint in the DataFrame.
     
-    # Check that all required columns exist
-    if not all(col in df.columns for col in columns):
-        raise ValueError("Some columns are missing in the DataFrame")
-
-    # For each column, calculate velocity and acceleration
+    Parameters:
+    df (pd.DataFrame): DataFrame containing keypoint coordinates.
+    columns (list): List of column names for which to calculate velocity and acceleration.
+    
+    Returns:
+    pd.DataFrame: DataFrame with added velocity and acceleration columns.
+    """
     for col in columns:
-        df[f'{col}_velocity'] = df[col].diff()  # Velocity is just the difference between subsequent frames
-        df[f'{col}_acceleration'] = df[f'{col}_velocity'].diff()  # Acceleration is the rate of change of velocity
-
-    # For the first frame, there's no velocity or acceleration, so let's set those to None
+        df[f'{col}_velocity'] = df[col].diff()
+        df[f'{col}_acceleration'] = df[f'{col}_velocity'].diff()
+    
+    # Set the first frame's velocity and acceleration to NaN
     for col in columns:
-        df.loc[0, f'{col}_velocity'] = None
-        df.loc[0, f'{col}_acceleration'] = None
+        df.loc[0, f'{col}_velocity'] = np.nan
+        df.loc[0, f'{col}_acceleration'] = np.nan
 
     return df
 
-# Here’s an example of how we'd use this script
-video_path = "ADL.mp4"
-keypoints = MediaPipe_detect_pose_sequence(video_path)  # Detect keypoints from the video
-angles = add_angles(keypoints)  # Add the angle calculations
-result = calculate_acceleration(angles, keypoints_columns)  # Compute velocity and acceleration for each keypoint
-print(result)
+# Example usage:
+vid_path = "ADL.mp4"
+df_keypoints = MediaPipe_detect_pose_sequence(vid_path)
+if df_keypoints is not None:
+    df_with_angles = add_angles(df_keypoints)
+    keypoints_columns = [
+        'Nose_X', 'Nose_Y', 'Left Eye_X', 'Left Eye_Y', 'Right Eye_X', 'Right Eye_Y',
+        'Left Shoulder_X', 'Left Shoulder_Y', 'Right Shoulder_X', 'Right Shoulder_Y',
+        'Left Elbow_X', 'Left Elbow_Y', 'Right Elbow_X', 'Right Elbow_Y', 'Left Wrist_X', 'Left Wrist_Y',
+        'Right Wrist_X', 'Right Wrist_Y', 'Left Hip_X', 'Left Hip_Y', 'Right Hip_X', 'Right Hip_Y',
+        'Left Knee_X', 'Left Knee_Y', 'Right Knee_X', 'Right Knee_Y', 'Left Ankle_X', 'Left Ankle_Y',
+        'Right Ankle_X', 'Right Ankle_Y'
+    ]
+    df_with_acceleration = calculate_acceleration(df_with_angles, keypoints_columns)
+    print(df_with_acceleration)
