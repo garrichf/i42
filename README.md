@@ -1,43 +1,51 @@
+Sure, here is the proofread and edited version of your document:
+
 # COS40006 - Computing Technology Project B
 ## Industry Project i42 - Human Fall Detection using RGB Camera
-### Nick's MoveNet Pose Estimation Implementation v.3.0
+### Nick's MoveNet Pose Estimation Implementation
 
 #### Version 1
 ##### Notes:
-My first attempt to implementing MoveNet was challenging as it was not straightforward like YOLOv8 or MediaPipe with dedicated packaged from PyPi.
-First, I attempted to load it via the downloaded model and direct url, which was not successful.
-Then I've learnt of Tensorflow Hub and loading it through the hub as similar to their tutorial codebase on Tensorflow Hub.
+My first attempt at implementing MoveNet was challenging as it was not as straightforward as YOLOv8 or MediaPipe, which have dedicated packages from PyPi. Initially, I tried to load the model via a downloaded file and direct URL, but this was unsuccessful. I then learned about TensorFlow Hub and successfully loaded the model through the hub, similar to their tutorial codebase on TensorFlow Hub.
+
 ##### Implementation:
-- Draft a script to load the MoveNet Thunder 4 single pose model through downloaded file and direct url unsuccessful.
-- Successfully loaded the model through Tensorflow Hub as with the tutorial codebase (https://www.tensorflow.org/hub/tutorials/movenet).
-- Adapting YOLOv8 script structure for pose estimation and visualisation.
+- Drafted a script to load the MoveNet Thunder 4 single pose model through a downloaded file and direct URL, which was unsuccessful.
+- Successfully loaded the model through TensorFlow Hub as per the tutorial codebase (https://www.tensorflow.org/hub/tutorials/movenet).
+- Adapted the YOLOv8 script structure for pose estimation and visualization.
+
 ##### Result:
-- Having a structured script that can load the MoveNet Pose Estimation Model.
-- Script runs and gives keypoints abeit questionable accuracy and wrong X and Y order (i.e, Y before X).
+- Developed a structured script that can load the MoveNet Pose Estimation Model.
+- The script runs and provides keypoints, albeit with questionable accuracy and incorrect X and Y order (i.e., Y before X).
 
 #### Version 2
 ##### Notes:
-The second attempt to implementing MoveNet, was better but achieved sub-par outputs as visualisation did not drawn well onto the image.
-Extracted keypoints coordinates were mis-label and misplaced as MoveNet output the Y coordinates before the X as part of its algorithm.
-##### Implementation:
-- Work upon the previous version to improve the visualisation and accuracy of coordinates.
-- Implement confidence threshold to improve keypoints extraction performance.
-- Adapting the entired MoveNet tutorial codebase, refactoring the helper functions and restructuring the inference functions to accept the project input (loaded video files or live video stream).
-- Implemented a function to add bounding box instead of using the existing codebase, as the given one generate a bounding box too big.
-- Implementing keypoints to dataframe function, which takes the inference output (keyoints) and put them into a dataframe with columns named as specified by Garrich and Fall Detection model.
-- Implementing the Data Processing script for calculating the additional angles and features (velocity, acceleration of keypoints).
-##### Result:
-- Working MoveNet pose estimation with accurate keypoints extractions and exported to dataframe to suit the inputs of Fall Detection model.
-- Re-organised output dataframe with coordinates order and meeting column naming convention by Garrich.
-- Functional visualisation with accurate keypoints drawn and edges connected well with bounding box of the subject within video frame.
+The second attempt at implementing MoveNet was better but still produced sub-par outputs as the visualization did not render well onto the image. Extracted keypoint coordinates were mislabeled and misplaced because MoveNet outputs the Y coordinates before the X as part of its algorithm.
 
-#### Version 3
-##### Notes:
-The latest attempt is to improve upon the previous version (adapted from MoveNet codebase) with well structured and good degree of function.
-Garrich insisted that some columns is to be removed as he noticed it improving the Fall Detection model performance, this was implemented into the code.
-Garrich also specified how the script would perform in the final integration and thus re-structuring work is needed for the integration.
 ##### Implementation:
-- Re-structured the latest codebase.
-- Removed the visualisation functions.
-- Modified the dataframe processing function to enable output dataframe to spec by Garrich and Fall Detection model.
-- Modified and restructured the separated (i.e., video and live inference) into a single function that takes a video frame and perform pose estimation.
+- Improved upon the previous version to enhance visualization and coordinate accuracy.
+- Implemented a confidence threshold to improve keypoint extraction performance.
+- Adapted the entire MoveNet tutorial codebase, refactoring the helper functions and restructuring the inference functions to accept the project input (loaded video files or live video stream).
+- Implemented a function to add a bounding box instead of using the existing codebase, as the given one generated a bounding box that was too large.
+- Implemented a function to convert keypoints to a dataframe, which takes the inference output (keypoints) and puts them into a dataframe with columns named as specified by Garrich and the Fall Detection model.
+- Implemented the Data Processing script for calculating additional angles and features (velocity, acceleration of keypoints).
+
+##### Result:
+- Achieved a working MoveNet pose estimation with accurate keypoint extractions exported to a dataframe to suit the inputs of the Fall Detection model.
+- Reorganized the output dataframe with the correct coordinate order and column naming convention as specified by Garrich.
+- Functional visualization with accurate keypoints drawn and edges connected well, with the bounding box of the subject within the video frame.
+
+#### Version 3 - Latest
+##### Notes:
+The latest attempt aims to improve upon the previous version (adapted from the MoveNet codebase) with a well-structured and functional implementation. Garrich insisted that some columns be removed as he noticed it improved the Fall Detection model's performance, which was implemented into the code. Garrich also specified how the script should perform in the final integration, necessitating restructuring work for the integration.
+
+##### Implementation:
+- Restructured the latest codebase.
+- Removed the visualization functions.
+- Modified the dataframe processing function to enable the output dataframe to meet the specifications by Garrich and the Fall Detection model.
+- Modified and restructured the separate (i.e., video and live inference) functions into a single function that takes a video frame and performs pose estimation.
+
+##### Result:
+- Developed a final restructured MoveNet implementation that is more efficient and has half the lines of version 2.
+- Directly serves the requirements of the Fall Detection model, i.e., outputs 17 keypoint coordinates (34 total as each keypoint gives X and Y).
+- Processes the frame input as part of the loop of `cv2.VideoCapture()` within the main script.
+- Removed the original visualization functions as they will be used with universal visualization.
