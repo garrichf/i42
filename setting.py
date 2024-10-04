@@ -17,18 +17,18 @@ class Settings:
         # Create a frame for the settings pane within the parent window
         self.settings_frame = tk.Frame(parent, bg="#3E4A52")
         self.settings_frame.grid(row=1, column=1, sticky="nsew", padx=20, pady=10)
-        settings_label = tk.Label(self.settings_frame, text="SETTING", fg="white", bg="#3E4A52", font=("Arial", 12, "bold"))
+        settings_label = tk.Label(self.settings_frame, text="SETTING", fg="white", bg="#3E4A52", font=("Arial", 20, "bold"))
         settings_label.pack(pady=10)
 
         # Center-align the model label and dropdown with more vertical space
-        model_label = tk.Label(self.settings_frame, text="Pose Estimation Model", fg="white", bg="#3E4A52", font=("Arial", 10))
+        model_label = tk.Label(self.settings_frame, text="Pose Estimation Model", fg="white", bg="#3E4A52", font=("Arial", 20))
         model_label.pack(anchor="center", pady=5)
         model_dropdown = ttk.Combobox(self.settings_frame, values=["YOLOv8", "PoseNet", "MediaPipe"], textvariable=self.model_choice)
         model_dropdown.current(0)
         model_dropdown.pack(anchor="center", pady=15)
 
         # Center-align the threshold label and slider with more vertical space
-        threshold_label = tk.Label(self.settings_frame, text="Confidence Threshold", fg="white", bg="#3E4A52", font=("Arial", 10))
+        threshold_label = tk.Label(self.settings_frame, text="Confidence Threshold", fg="white", bg="#3E4A52", font=("Arial", 20))
         threshold_label.pack(anchor="center", pady=5)
         threshold_slider = tk.Scale(self.settings_frame, from_=0, to=1, orient="horizontal", resolution=0.1, bg="#3E4A52", length=150,variable=self.confidence_threshold)
         threshold_slider.pack(anchor="center", pady=15)

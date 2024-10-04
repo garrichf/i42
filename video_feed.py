@@ -12,7 +12,7 @@ class VideoFeed:
         self.video_label.grid(row=1, column=0, sticky="nsew", padx=20, pady=10)  
         
         self.cap = None
-        self.video_path = "video/FallRightS1.avi"  
+        self.video_path = "video\Task4_with_box.mp4"  
         self.is_live = False  
         self.frame_counter = 0  
 
@@ -43,6 +43,12 @@ class VideoFeed:
             ret, frame = self.cap.read()
             if ret:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                container_width = self.video_label.winfo_width()
+                container_height = self.video_label.winfo_height()
+
+                if container_width > 0 and container_height > 0:
+                    # Resize the frame to match the size of the container
+                    frame = cv2.resize(frame, (container_width, container_height), interpolation=cv2.INTER_AREA)
                 image = ImageTk.PhotoImage(Image.fromarray(frame))
                 self.video_label.config(image=image)
                 self.video_label.image = image 

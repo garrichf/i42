@@ -1,25 +1,41 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import Toplevel, Label
 from video_feed import VideoFeed
 from setting import Settings
 from console import Console
 from history import HistoryLog
 from datetime import datetime
+import threading
+import pygame
 
 root = tk.Tk()
 root.title("Fall Detection System")
 root.geometry("1300x700")  
 root.configure(bg="#2B3A42")
 
-root.grid_columnconfigure(0, weight=5) 
+pygame.mixer.init()
+
+root.grid_columnconfigure(0, weight=4) 
 root.grid_columnconfigure(1, weight=1)  
 root.grid_rowconfigure(0, weight=0)  
-root.grid_rowconfigure(1, weight=4)  
+root.grid_rowconfigure(1, weight=3)  
 root.grid_rowconfigure(2, weight=1)  
+
+stop_sound_event = threading.Event()
+
+def play_fall_sound():
+    # Reset the stop event
+    stop_sound_event.clear()
+    # Play the sound until the stop event is set
+    pygame.mixer.music.load("sound/700-hz-beeps-86815.mp3")
+    pygame.mixer.music.play(-1)  # Loop indefinitely
+    while not stop_sound_event.is_set():
+        continue
+    pygame.mixer.music.stop()
 
 title_frame = tk.Frame(root, bg="#2B3A42")
 title_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=20, pady=10)
-title_label = tk.Label(title_frame, text="FALL DETECTION SYSTEM", fg="white", bg="#2B3A42", font=("Arial", 16, "bold"))
+title_label = tk.Label(title_frame, text="FALL DETECTION SYSTEM", fg="white", bg="#2B3A42", font=("Arial", 30, "bold"))
 title_label.pack(side="top", pady=5)  
 toggle_frame = tk.Frame(title_frame, bg="#2B3A42")
 toggle_frame.pack(side="right")
@@ -41,8 +57,8 @@ def toggle_switch():
         toggle_label_right.config(fg="white")
     toggle_state.set(not toggle_state.get())
 
-
 def trigger_fall_detection():
+    global sound_thread
     if fall_detected.get():
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         confidence_value = settings.saved_confidence_value
@@ -52,20 +68,61 @@ def trigger_fall_detection():
 
         # Popup message
         if confidence_value is not None:
-            popup_message = (f"Fall detected!\n"
-                            f"Date: {current_time}\n"
-                            f"Response Time: {response_time}\n"
-                            f"Current Confidence Rate: {confidence_value}")
-            tk.messagebox.showwarning("Fall Detection Alert", popup_message)
+            popup = Toplevel()
+            popup.title("Fall Detection Alert")
+           
+            popup.configure(bg="#3E4A52")
+            screen_width = popup.winfo_screenwidth()
+            screen_height = popup.winfo_screenheight()
+            window_width = 300
+            window_height = 150
+            # Calculate the position to center the pop-up
+            x_cordinate = int((screen_width / 2) - (window_width / 2))
+            y_cordinate = int((screen_height / 2) - (window_height / 2))
 
-        # Add message to history log
+            # Set the geometry and position of the pop-up
+            popup.geometry(f"{window_width}x{window_height}+{x_cordinate}+{y_cordinate}")
+
+            # Add the details to the pop-up
+            Label(popup, text="Fall Detected!", fg="white", bg="#3E4A52", font=("Arial", 14, "bold")).pack(pady=10)
+            Label(popup, text=f"Date: {current_time}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
+            Label(popup, text=f"Response Time: {response_time}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
+            Label(popup, text=f"Current Confidence Rate: {confidence_value}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
+            
+            # Automatically close the popup after 10 seconds
+            popup.after(10000, lambda: close_popup(popup))
+
+            # Start playing the sound in a separate thread
+            sound_thread = threading.Thread(target=play_fall_sound, daemon=True)
+            sound_thread.start()
+
+            # Bind the close button (X) to the close_popup function
+            popup.protocol("WM_DELETE_WINDOW", lambda: close_popup(popup))
+
+            # Add message to history log
             history_message = f"Fall detected on {current_time}"
             history_log.add_message(history_message)
+
+def close_popup(popup):
+    global sound_thread
+
+    # Destroy the popup
+    popup.destroy()
+
+    # Stop the sound thread if it is still running
+    if sound_thread is not None:
+        stop_sound_event.set()  # Signal the sound thread to stop
+        sound_thread.join()  # Wait for the sound thread to finish
    
 def on_closing():
+    stop_fall_sound()
     with open(settings.settings_file, "w") as file:
         file.write("")
     root.destroy()
+
+def stop_fall_sound():
+    stop_sound_event.set()  # Signal the sound thread to stop
+    pygame.mixer.music.stop()
 
 toggle_label_left = tk.Label(toggle_frame, text="Recorded", fg="white", bg="#2B3A42", font=("Arial", 10))
 toggle_label_left.pack(side="left")
