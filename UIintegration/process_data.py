@@ -3,6 +3,7 @@ import numpy as np
 import process_data_functions
 import csv
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+import cv2
 
 columns_to_remove = [
 'Left Eye_Y', 'Left Eye_X', 
@@ -53,6 +54,70 @@ loaded_mean = np.load('precomputed_mean.npy')
 loaded_std = np.load('precomputed_std.npy')
 # iqr_minmax = 
 
+# for drawing bounding box
+def find_min_max_coordinates(df):
+    # List of X and Y coordinate columns
+    x_columns = ['Nose_X', 'Left Shoulder_X', 'Right Shoulder_X', 'Left Elbow_X', 'Right Elbow_X',
+                 'Left Wrist_X', 'Right Wrist_X', 'Left Hip_X', 'Right Hip_X', 'Left Knee_X',
+                 'Right Knee_X', 'Left Ankle_X', 'Right Ankle_X']
+                 
+    y_columns = ['Nose_Y', 'Left Shoulder_Y', 'Right Shoulder_Y', 'Left Elbow_Y', 'Right Elbow_Y',
+                 'Left Wrist_Y', 'Right Wrist_Y', 'Left Hip_Y', 'Right Hip_Y', 'Left Knee_Y',
+                 'Right Knee_Y', 'Left Ankle_Y', 'Right Ankle_Y']
+    
+  # Assuming df contains a single row
+    df_x_filtered = df[x_columns].replace(-1, np.nan)
+    df_y_filtered = df[y_columns].replace(-1, np.nan)
+
+    # Assuming df contains a single row
+    min_x = df_x_filtered.iloc[0].min()  # Minimum X value ignoring zeros
+    max_x = df_x_filtered.iloc[0].max()  # Maximum X value ignoring zeros
+
+    min_y = df_y_filtered.iloc[0].min()  # Minimum Y value ignoring zeros
+    max_y = df_y_filtered.iloc[0].max()  # Maximum Y value ignoring zeros
+
+    print(f"Min X: {min_x}, Max X: {max_x}, Min Y: {min_y}, Max Y: {max_y}")
+    
+    return min_x, min_y, max_x, max_y
+
+def draw_keypoints_on_frame(df, frame):
+    # Define the keypoint columns
+    keypoint_columns = {
+        'Nose': ('Nose_X', 'Nose_Y'),
+        'Left Shoulder': ('Left Shoulder_X', 'Left Shoulder_Y'),
+        'Right Shoulder': ('Right Shoulder_X', 'Right Shoulder_Y'),
+        'Left Elbow': ('Left Elbow_X', 'Left Elbow_Y'),
+        'Right Elbow': ('Right Elbow_X', 'Right Elbow_Y'),
+        'Left Wrist': ('Left Wrist_X', 'Left Wrist_Y'),
+        'Right Wrist': ('Right Wrist_X', 'Right Wrist_Y'),
+        'Left Hip': ('Left Hip_X', 'Left Hip_Y'),
+        'Right Hip': ('Right Hip_X', 'Right Hip_Y'),
+        'Left Knee': ('Left Knee_X', 'Left Knee_Y'),
+        'Right Knee': ('Right Knee_X', 'Right Knee_Y'),
+        'Left Ankle': ('Left Ankle_X', 'Left Ankle_Y'),
+        'Right Ankle': ('Right Ankle_X', 'Right Ankle_Y'),
+    }
+
+    # Get frame dimensions (width and height)
+    frame_height, frame_width = frame.shape[:2]
+
+    # Iterate through each keypoint
+    for keypoint_name, (x_col, y_col) in keypoint_columns.items():
+        # Extract the normalized X and Y coordinates from the dataframe
+        normalized_x = df[x_col].iloc[0]
+        normalized_y = df[y_col].iloc[0]
+        
+        # Ignore (0, 0) coordinates (which may represent missing keypoints)
+        if normalized_x != 0 and normalized_y != 0:
+            # Scale the normalized coordinates to the frame dimensions
+            x = int(normalized_x * frame_width)
+            y = int(normalized_y * frame_height)
+
+            # Draw a circle for each keypoint
+            cv2.circle(frame, (x, y), 3, (0, 0, 255), -1)  # Red circles
+            cv2.putText(frame, keypoint_name, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (255, 255, 255), 1)
+
+    return frame
 
 def process_data(keypoints_df, index, history_csv):
     history_df = pd.read_csv(history_csv)
