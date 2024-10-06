@@ -335,7 +335,7 @@ def frame_inference(frame, movenet, input_size, init_crop_region, run_inference,
     
     return df
 
-def movennet(frame):
+def movenet(frame):
     
     # Load the MoveNet model to process frame.
     df = frame_inference(frame, movenet, INPUT_SIZE, init_crop_region, run_inference, determine_crop_region)
