@@ -10,9 +10,9 @@ import SETTINGS
 import process_data
 from tensorflow.keras.models import load_model
 from tkinter import Label
-
 class VideoFeed:
-    def __init__(self, parent, toggle_state_var):
+    def __init__(self, parent, toggle_state_var,trigger_fall_detection):
+        self.trigger_fall_detection = trigger_fall_detection
         self.log_csv_filepath = SETTINGS.LOG_FILEPATH
         self.processed_output_csv = SETTINGS.PROCESSED_OUTPUT_CSV
         process_data.process_data_functions.initialize_log_output(self.log_csv_filepath, self.processed_output_csv)
@@ -77,6 +77,7 @@ class VideoFeed:
         if self.predictions_class and self.fall_detected_buffer < 30:
             self.fall_detected_buffer += 1
             self.frame_buffer.pop(0)
+           # self.fall_detection_callback()
             text = "Fall Detected (Buffering)"
             color = (0, 0, 255)
             cv2.putText(frame_with_keypoints, text, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2, cv2.LINE_AA)
@@ -84,11 +85,13 @@ class VideoFeed:
             if len(self.frame_buffer) == self.sequence_length:
                 data_array = np.vstack(self.frame_buffer).astype(np.float32).reshape(1, self.sequence_length, 63)
                 predictions = self.model.predict(data_array)
-                fall_probability = predictions[0][0]
-                self.predictions_class = int(fall_probability > self.confidence_threshold)
+                self.fall_probability = predictions[0][0]
+                self.predictions_class = int(self.fall_probability > self.confidence_threshold)
                 if self.predictions_class:
                     self.fall_detected_buffer = 0
                     self.fall_counter += 1
+                    self.trigger_fall_detection()
+                    
                 self.frame_buffer.pop(0)
                 text = "Fall" if self.predictions_class else "No Fall"
                 color = (0, 0, 255) if self.predictions_class else (255, 255, 255)
