@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
+import SETTINGS
+import video_feed
 
 class Settings:
     def __init__(self, parent, console, toggle_state_var, video_feed):
@@ -23,7 +25,7 @@ class Settings:
         # Center-align the model label and dropdown with more vertical space
         model_label = tk.Label(self.settings_frame, text="Pose Estimation Model", fg="white", bg="#3E4A52", font=("Arial", 20))
         model_label.pack(anchor="center", pady=5)
-        model_dropdown = ttk.Combobox(self.settings_frame, values=["YOLOv8", "PoseNet", "MediaPipe"], textvariable=self.model_choice)
+        model_dropdown = ttk.Combobox(self.settings_frame, values=["YOLOv8", "MoveNet", "MediaPipe"], textvariable=self.model_choice)
         model_dropdown.current(0)
         model_dropdown.pack(anchor="center", pady=15)
 
@@ -80,7 +82,6 @@ class Settings:
 
     def save_settings(self):
         # Get the current date and time
-        self.video_feed.update_video_source()
         self.live_state = self.toggle_state_var.get()
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         selected_model = self.model_choice.get()
@@ -103,13 +104,20 @@ class Settings:
             file.write(f"Model: {selected_model}\n")
             file.write(f"Confidence Threshold: {confidence_value}\n")
 
+        model_text, confidence_threshold_text = SETTINGS.read_config(self.settings_file)
+        SETTINGS.CONFIDENCE_THRESHOLD = confidence_threshold_text
+        if model_text == "YOLOv8":
+            SETTINGS.POSE_MODEL_USED = "YOLO"
+        elif model_text == "MediaPipe":
+            SETTINGS.POSE_MODEL_USED = "MEDIAPIPE"
+       # elif model_text == "MoveNet":
+        #    SETTINGS.POSE_MODEL_USED = "MOVENET"
         messagebox.showinfo("Settings Saved", "The settings have been successfully saved and applied.")
         self.console.add_message(message)
-
+        self.video_feed.reload_settings()
 
     def reset_settings(self):
         self.model_choice.set("YOLOv8")
         self.confidence_threshold.set(0.5)
-        
         
        

@@ -62,15 +62,10 @@ def trigger_fall_detection():
     if fall_detected.get():
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         confidence_value = settings.saved_confidence_value
-
-        # Calculate response time (10 seconds after start)
         response_time = "10 seconds"
-
-        # Popup message
         if confidence_value is not None:
             popup = Toplevel()
             popup.title("Fall Detection Alert")
-           
             popup.configure(bg="#3E4A52")
             screen_width = popup.winfo_screenwidth()
             screen_height = popup.winfo_screenheight()
@@ -79,17 +74,11 @@ def trigger_fall_detection():
             # Calculate the position to center the pop-up
             x_cordinate = int((screen_width / 2) - (window_width / 2))
             y_cordinate = int((screen_height / 2) - (window_height / 2))
-
-            # Set the geometry and position of the pop-up
             popup.geometry(f"{window_width}x{window_height}+{x_cordinate}+{y_cordinate}")
-
-            # Add the details to the pop-up
             Label(popup, text="Fall Detected!", fg="white", bg="#3E4A52", font=("Arial", 14, "bold")).pack(pady=10)
             Label(popup, text=f"Date: {current_time}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
             Label(popup, text=f"Response Time: {response_time}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
             Label(popup, text=f"Current Confidence Rate: {confidence_value}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
-            
-            # Automatically close the popup after 10 seconds
             popup.after(10000, lambda: close_popup(popup))
 
             # Start playing the sound in a separate thread
@@ -105,14 +94,11 @@ def trigger_fall_detection():
 
 def close_popup(popup):
     global sound_thread
-
-    # Destroy the popup
     popup.destroy()
-
-    # Stop the sound thread if it is still running
     if sound_thread is not None:
-        stop_sound_event.set()  # Signal the sound thread to stop
-        sound_thread.join()  # Wait for the sound thread to finish
+        stop_sound_event.set() 
+        sound_thread.join()
+        sound_thread = None
    
 def on_closing():
     stop_fall_sound()
@@ -121,7 +107,7 @@ def on_closing():
     root.destroy()
 
 def stop_fall_sound():
-    stop_sound_event.set()  # Signal the sound thread to stop
+    stop_sound_event.set()  
     pygame.mixer.music.stop()
 
 toggle_label_left = tk.Label(toggle_frame, text="Recorded", fg="white", bg="#2B3A42", font=("Arial", 10))
@@ -142,6 +128,6 @@ console = Console(root)
 settings = Settings(root, console, toggle_state, video_feed)
 settings.write_defaults_to_file()
 history_log = HistoryLog(root)
-root.after(5000, trigger_fall_detection)  # 10000 ms = 10 seconds
+#trigger_fall_detection  # 10000 ms = 10 seconds
 root.protocol("WM_DELETE_WINDOW", on_closing)
 root.mainloop()
