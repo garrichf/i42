@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import YOLO
 import MEDIAPIPE
-#import MOVENET
+import MOVENET
 import SETTINGS
 import process_data
 from tensorflow.keras.models import load_model
@@ -65,8 +65,9 @@ class VideoFeed:
             keypoints = YOLO.YOLO_pose(frame)
         elif self.pose_model_used == "MEDIAPIPE":
             keypoints = MEDIAPIPE.MEDIAPIPE_pose(frame)
-        #elif self.pose_model_used == "MOVENET":
-            #keypoints = MOVENET.MoveNet_pose(frame)
+        elif self.pose_model_used == "MOVENET":
+            keypoints = MOVENET.MOVENET_pose(frame)
+            
         # Process keypoints and perform fall detection
         processed_df = process_data.process_data(keypoints, index, self.log_csv_filepath)
         processed_df = processed_df.replace(0, -1).fillna(-1)

@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import YOLO
 import MEDIAPIPE
+import MOVENET
 import SETTINGS
 import os
 import csv
@@ -56,7 +57,8 @@ while cap.isOpened():
         keypoints = YOLO.YOLO_pose(frame)
     if pose_model_used == "MEDIAPIPE":
         keypoints = MEDIAPIPE.MEDIAPIPE_pose(frame)
-    # if pose_model_used == "MOVENET":
+    if pose_model_used == "MOVENET":
+        keypoints = MOVENET.MOVENET_pose(frame)
         
     print(keypoints)
     print(keypoints.shape)
@@ -119,8 +121,10 @@ while cap.isOpened():
         min_y_scaled = int(min_y * frame_height)
         max_y_scaled = int(max_y * frame_height)
 
+        box_color = (0, 0, 255) if predictions_class else (0, 255, 0)
+
         # Draw the bounding box
-        cv2.rectangle(frame, (min_x_scaled, min_y_scaled), (max_x_scaled, max_y_scaled), (0, 255, 0), 2)
+        cv2.rectangle(frame, (min_x_scaled, min_y_scaled), (max_x_scaled, max_y_scaled), box_color, 2)
         print("Drawing bounding box")
     else:
         # If any of the values are NaN, skip drawing the bounding box

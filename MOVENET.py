@@ -4,6 +4,12 @@ import numpy as np
 import cv2
 import pandas as pd
 
+# Load the MoveNet model from TensorFlow Hub
+try:
+    module = hub.load("https://tfhub.dev/google/movenet/singlepose/thunder/4")
+except Exception as error:
+    print(f"Failed to load the model: {error}")
+
 # Dictionary that maps from joint names to keypoint indices.
 KEYPOINT_DICT = {
     'nose': 0,
@@ -30,7 +36,7 @@ MIN_CROP_KEYPOINT_SCORE = 0.35
 # Size of the square crop region around the person's center.
 INPUT_SIZE = 256
 
-def load_movenet(input_image):
+def movenet(input_image):
     """
     Perform pose estimation using the MoveNet model.
     Args:
@@ -44,11 +50,6 @@ def load_movenet(input_image):
         Exception: If there is an error loading the MoveNet model from TensorFlow Hub.
     """
 
-    # Load the MoveNet model from TensorFlow Hub
-    try:
-        module = hub.load("https://www.kaggle.com/models/google/movenet/TensorFlow2/singlepose-thunder/4")
-    except Exception as error:
-        print(f"Failed to load the model: {error}")
 
     model = module.signatures['serving_default']
 
@@ -202,7 +203,7 @@ def crop_and_resize(image, crop_region, crop_size):
       image, box_indices=[0], boxes=boxes, crop_size=crop_size)
   return output_image
 
-def run_inference(load_movenet, image, crop_region, crop_size):
+def run_inference(movenet, image, crop_region, crop_size):
   """Runs model inference on the cropped region.
 
   The function runs the model inference on the cropped region and updates the
@@ -212,7 +213,7 @@ def run_inference(load_movenet, image, crop_region, crop_size):
   input_image = crop_and_resize(
     tf.expand_dims(image, axis=0), crop_region, crop_size=crop_size)
   # Run model inference.
-  keypoints_with_scores = load_movenet(input_image)
+  keypoints_with_scores = movenet(input_image)
   # Update the coordinates.
   for idx in range(17):
     keypoints_with_scores[0, 0, idx, 0] = (
@@ -266,6 +267,7 @@ def keypoints_to_dataframe(keypoints_with_scores):
   x_columns = [col for col in columns if '_X' in col]
   y_columns = [col for col in columns if '_Y' in col]
   reorganized_columns = []
+
   for x_col, y_col in zip(x_columns, y_columns):
     reorganized_columns.append(x_col)
     reorganized_columns.append(y_col)
@@ -299,7 +301,7 @@ def load_stream(stream_path):
     stream.release()
     cv2.destroyAllWindows()
 
-def frame_inference(frame, load_movenet, input_size, init_crop_region, run_inference, determine_crop_region):
+def frame_inference(frame, movenet, input_size, init_crop_region, run_inference, determine_crop_region):
     
     # Get the frame dimensions
     image_height, image_width, _ = frame.shape
@@ -320,32 +322,25 @@ def frame_inference(frame, load_movenet, input_size, init_crop_region, run_infer
 
     # Run inference
     keypoints_with_scores = run_inference(
-        load_movenet, frame_tensor[0], crop_region,
+        movenet, frame_tensor[0], crop_region,
         crop_size=[input_size, input_size])
     
     # Update crop region
     crop_region = determine_crop_region(
         keypoints_with_scores, image_height, image_width)
 
-    # Set coordinates with low confidence to -1
-    # keypoints_with_scores[0, 0, keypoints_with_scores[0, 0, :, 2] < MIN_CROP_KEYPOINT_SCORE, :2] = -1
+    # Set coordinates with low confidence to 0
+    # keypoints_with_scores[0, 0, keypoints_with_scores[0, 0, :, 2] < MIN_CROP_KEYPOINT_SCORE, :2] = 0
 
     # Convert keypoints to DataFrame
     df = keypoints_to_dataframe(keypoints_with_scores)
     
     return df
 
-def MoveNet_pose(frame):
+def MOVENET_pose(frame):
     
+    print("MoveNet is Running")
     # Load the MoveNet model to process frame.
-    df = frame_inference(frame, load_movenet, INPUT_SIZE, init_crop_region, run_inference, determine_crop_region)
+    df = frame_inference(frame, movenet, INPUT_SIZE, init_crop_region, run_inference, determine_crop_region)
 
     return df
-
-# def demo():
-#    video_path = 'ADL.mp4'
-#    for frame in load_stream(video_path):
-#         df = frame_inference(frame, movenet, INPUT_SIZE, init_crop_region, run_inference, determine_crop_region)
-#         print(df)
-
-# demo()
