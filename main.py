@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import YOLO
 import MEDIAPIPE
+import MOVENET
 import SETTINGS
 import os
 import csv
@@ -56,7 +57,8 @@ while cap.isOpened():
         keypoints = YOLO.YOLO_pose(frame)
     if pose_model_used == "MEDIAPIPE":
         keypoints = MEDIAPIPE.MEDIAPIPE_pose(frame)
-    # if pose_model_used == "MOVENET":
+    if pose_model_used == "MOVENET":
+        keypoints = MOVENET.MOVENET_pose(frame)
         
     print(keypoints)
     print(keypoints.shape)

@@ -19,7 +19,7 @@ keypoint_names = [
 
 # Columns to keep
 keypoint_columns = [
-     'Nose_X', 'Nose_Y',
+    'Nose_X', 'Nose_Y',
     'Left Eye_X', 'Left Eye_Y',
     'Right Eye_X', 'Right Eye_Y',
     'Left Ear_X','Left Ear_Y',
