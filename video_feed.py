@@ -107,7 +107,11 @@ class VideoFeed:
             max_x_scaled = int(max_x * self.frame_width)
             min_y_scaled = int(min_y * self.frame_height)
             max_y_scaled = int(max_y * self.frame_height)
-            cv2.rectangle(frame_with_keypoints, (min_x_scaled, min_y_scaled), (max_x_scaled, max_y_scaled), (0, 255, 0), 2)
+
+            box_color = (0, 0, 255) if self.predictions_class else (0, 255, 0)
+
+            cv2.rectangle(frame_with_keypoints, (min_x_scaled, min_y_scaled), (max_x_scaled, max_y_scaled), box_color, 2)
+            
         cv2.putText(frame_with_keypoints, "Frame: " + str(index), (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         self.index += 1
         return frame_with_keypoints
