@@ -4,6 +4,12 @@ import numpy as np
 import cv2
 import pandas as pd
 
+# Load the MoveNet model from TensorFlow Hub
+try:
+    MODULE = hub.load("https://tfhub.dev/google/movenet/singlepose/thunder/4")
+except Exception as error:
+    print(f"Failed to load the model: {error}")
+
 # Dictionary that maps from joint names to keypoint indices.
 KEYPOINT_DICT = {
     'nose': 0,
@@ -44,13 +50,7 @@ def movenet(input_image):
         Exception: If there is an error loading the MoveNet model from TensorFlow Hub.
     """
 
-    # Load the MoveNet model from TensorFlow Hub
-    try:
-        module = hub.load("https://www.kaggle.com/models/google/movenet/TensorFlow2/singlepose-thunder/4")
-    except Exception as error:
-        print(f"Failed to load the model: {error}")
-
-    model = module.signatures['serving_default']
+    model = MODULE.signatures['serving_default']
 
     # SavedModel format expects tensor type of int32.
     input_image = tf.cast(input_image, dtype=tf.int32)
@@ -342,10 +342,10 @@ def movenet(frame):
 
     return df
 
-# def demo():
-#    video_path = 'ADL.mp4'
-#    for frame in load_stream(video_path):
-#         df = frame_inference(frame, movenet, INPUT_SIZE, init_crop_region, run_inference, determine_crop_region)
-#         print(df)
+def demo():
+   video_path = 'ADL.mp4'
+   for frame in load_stream(video_path):
+        df = movenet(frame)
+        print(df)
 
-# demo()
+demo()
