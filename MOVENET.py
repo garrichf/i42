@@ -330,7 +330,7 @@ def frame_inference(frame, movenet, input_size, init_crop_region, run_inference,
         keypoints_with_scores, image_height, image_width)
 
     # Set coordinates with low confidence to 0
-    # keypoints_with_scores[0, 0, keypoints_with_scores[0, 0, :, 2] < MIN_CROP_KEYPOINT_SCORE, :2] = 0
+    keypoints_with_scores[0, 0, keypoints_with_scores[0, 0, :, 2] < MIN_CROP_KEYPOINT_SCORE, :2] = 0
 
     # Convert keypoints to DataFrame
     df = keypoints_to_dataframe(keypoints_with_scores)

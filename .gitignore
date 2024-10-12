@@ -4,3 +4,6 @@ i42/
 
 # Python spcecfic
 __pycache__/
+
+# Stuff
+logs/
