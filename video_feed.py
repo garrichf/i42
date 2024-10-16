@@ -10,8 +10,10 @@ import SETTINGS
 import process_data
 from tensorflow.keras.models import load_model
 from tkinter import Label
+import os
+
 class VideoFeed:
-    def __init__(self, parent, toggle_state_var,trigger_fall_detection):
+    def __init__(self, parent, toggle_state_var, trigger_fall_detection):
         self.trigger_fall_detection = trigger_fall_detection
         self.log_csv_filepath = SETTINGS.LOG_FILEPATH
         self.processed_output_csv = SETTINGS.PROCESSED_OUTPUT_CSV
@@ -21,7 +23,9 @@ class VideoFeed:
         self.video_label = Label(parent, bg="black")
         self.video_label.grid(row=1, column=0, sticky="nsew", padx=20, pady=10)  
         self.cap = None
-        self.video_path = "video/Footage46_CAUCAFDD_Subject_9_Fall_1.mp4" 
+        self.video_folder = "video/"  # Folder containing video files
+        self.video_files = self.get_video_files(self.video_folder)
+        self.current_video_index = 0
         self.is_live = False  
         self.frame_counter = 0  
         self.model = load_model('falldetect_main.keras', custom_objects={'f1_score': process_data.process_data_functions.f1_score})
@@ -41,22 +45,32 @@ class VideoFeed:
         self.after_id = None  # Store the `after` call ID
         self.update_video_source()
 
-    
+    def get_video_files(self, folder):
+        """Get a list of video files in the specified folder."""
+        video_extensions = ('.mp4', '.avi', '.mov', '.mkv')  # Add more extensions if needed
+        return [os.path.join(folder, f) for f in os.listdir(folder) if f.endswith(video_extensions)]
+
     def update_video_source(self):
-        
-        if self.cap is not None:
-            self.cap.release()
+        self.stop_video()  # Stop the current video before loading the next one
 
         self.is_live = self.toggle_state_var.get()
 
         if self.is_live:
             self.cap = cv2.VideoCapture(0)
-           
         else:
-            self.cap = cv2.VideoCapture(self.video_path)
+            if self.current_video_index >= len(self.video_files):
+                self.current_video_index = 0  # Restart from the first video
+            self.cap = cv2.VideoCapture(self.video_files[self.current_video_index])
+            self.current_video_index += 1
+
         self.frame_width = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         self.frame_height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-        self.show_frame()
+        self.frame_buffer = []  # Clear the buffer frames for every new video playback
+        self.index = 0  # Reset the frame index for each new video
+        self.predictions_class = 0  # Clear fall detected class of the previous video
+
+        # Add a 3-second delay before showing the next video
+        self.parent.after(3000, self.show_frame)
 
     def process_frame(self, frame, index):
          # Perform pose estimation
