@@ -11,6 +11,7 @@ import process_data
 from tensorflow.keras.models import load_model
 from tkinter import Label
 import os
+import time
 
 class VideoFeed:
     def __init__(self, parent, toggle_state_var, trigger_fall_detection):
@@ -23,8 +24,8 @@ class VideoFeed:
         self.video_label = Label(parent, bg="black")
         self.video_label.grid(row=1, column=0, sticky="nsew", padx=20, pady=10)  
         self.cap = None
-        self.video_folder = "video/"  # Folder containing video files
-        self.video_files = self.get_video_files(self.video_folder)
+        self.video_folder = "video"  # Folder containing videos
+        self.video_files = self.load_video_files(self.video_folder)
         self.current_video_index = 0
         self.is_live = False  
         self.frame_counter = 0  
@@ -45,10 +46,13 @@ class VideoFeed:
         self.after_id = None  # Store the `after` call ID
         self.update_video_source()
 
-    def get_video_files(self, folder):
-        """Get a list of video files in the specified folder."""
-        video_extensions = ('.mp4', '.avi', '.mov', '.mkv')  # Add more extensions if needed
-        return [os.path.join(folder, f) for f in os.listdir(folder) if f.endswith(video_extensions)]
+    def load_video_files(self, folder):
+        # Load all video file paths from the specified folder
+        video_files = [os.path.join(folder, f) for f in os.listdir(folder) if f.endswith(('.mp4', '.avi', '.mov'))]
+
+        print(f"Loaded video files: {video_files}")  # Debug statement
+        
+        return video_files
 
     def update_video_source(self):
         self.stop_video()  # Stop the current video before loading the next one
@@ -57,20 +61,28 @@ class VideoFeed:
 
         if self.is_live:
             self.cap = cv2.VideoCapture(0)
+            if not self.cap.isOpened():
+                print("Error: Could not open live video stream.")
+                self.cap = None
         else:
             if self.current_video_index >= len(self.video_files):
                 self.current_video_index = 0  # Restart from the first video
-            self.cap = cv2.VideoCapture(self.video_files[self.current_video_index])
+            video_path = self.video_files[self.current_video_index]
+            print(f"Loading video file: {video_path}")
+            self.cap = cv2.VideoCapture(video_path)
+            if not self.cap.isOpened():
+                print(f"Error: Could not open video stream file {video_path}.")
+                self.cap = None
             self.current_video_index += 1
 
-        self.frame_width = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-        self.frame_height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-        self.frame_buffer = []  # Clear the buffer frames for every new video playback
-        self.index = 0  # Reset the frame index for each new video
-        self.predictions_class = 0  # Clear fall detected class of the previous video
+            self.frame_width = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+            self.frame_height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+            self.frame_buffer = []  # Clear the buffer frames for every new video playback
+            self.index = 0  # Reset the frame index for each new video
+            self.predictions_class = 0  # Clear fall detected class of the previous video
 
-        # Add a 3-second delay before showing the next video
-        self.parent.after(3000, self.show_frame)
+            # Add a 3-second delay before showing the next video
+            self.parent.after(3000, self.show_frame)
 
     def process_frame(self, frame, index):
          # Perform pose estimation
@@ -99,14 +111,22 @@ class VideoFeed:
         else:
             if len(self.frame_buffer) == self.sequence_length:
                 data_array = np.vstack(self.frame_buffer).astype(np.float32).reshape(1, self.sequence_length, 63)
+                
+                # Record prediction start time
+                predict_start= time.time()
+                
                 predictions = self.model.predict(data_array)
+            
                 self.fall_probability = predictions[0][0]
                 self.predictions_class = int(self.fall_probability > self.confidence_threshold)
                 if self.predictions_class:
                     self.fall_detected_buffer = 0
                     self.fall_counter += 1
-                    self.trigger_fall_detection()
-                    
+                    self.trigger_fall_detection()        
+
+                # Record prediction time
+                self.predict_time = time.time() - predict_start 
+                
                 self.frame_buffer.pop(0)
                 text = "Fall" if self.predictions_class else "No Fall"
                 color = (0, 0, 255) if self.predictions_class else (255, 255, 255)
@@ -115,16 +135,28 @@ class VideoFeed:
             else:
                 cv2.putText(frame_with_keypoints, "Starting Up", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
-       
+        # Define a margin percentage for the bounding box
+        margin_percentage = 0.15
+
         if not (np.isnan(min_x) or np.isnan(min_y) or np.isnan(max_x) or np.isnan(max_y)):
             min_x_scaled = int(min_x * self.frame_width)
             max_x_scaled = int(max_x * self.frame_width)
             min_y_scaled = int(min_y * self.frame_height)
             max_y_scaled = int(max_y * self.frame_height)
 
+            # Calculate the margin in pixels
+            margin_x = int((max_x_scaled - min_x_scaled) * margin_percentage)
+            margin_y = int((max_y_scaled - min_y_scaled) * margin_percentage)
+
+            # Adjust the coordinates to include the margin
+            min_x_scaled = max(0, min_x_scaled - margin_x)
+            max_x_scaled = min(self.frame_width, max_x_scaled + margin_x)
+            min_y_scaled = max(0, min_y_scaled - margin_y)
+            max_y_scaled = min(self.frame_height, max_y_scaled + margin_y)
+
             box_color = (0, 0, 255) if self.predictions_class else (0, 255, 0)
 
-            cv2.rectangle(frame_with_keypoints, (min_x_scaled, min_y_scaled), (max_x_scaled, max_y_scaled), box_color, 2)
+            cv2.rectangle(frame_with_keypoints, (int(min_x_scaled), int(min_y_scaled)), (int(max_x_scaled), int(max_y_scaled)), box_color, 2)
             
         cv2.putText(frame_with_keypoints, "Frame: " + str(index), (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         self.index += 1
@@ -133,7 +165,7 @@ class VideoFeed:
 
     def show_frame(self):
         if self.cap is None or not self.cap.isOpened():
-            self.video_label.config(text="Unable to access video source")
+            self.video_label.config(text="Error: Unable to access video stream.")
             return
 
         self.frame_counter += 1
