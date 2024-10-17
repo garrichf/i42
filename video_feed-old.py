@@ -49,12 +49,8 @@ class VideoFeed:
     def load_video_files(self, folder):
         # Load all video file paths from the specified folder
         video_files = [os.path.join(folder, f) for f in os.listdir(folder) if f.endswith(('.mp4', '.avi', '.mov'))]
-        print(f"Loaded video files: {video_files}")  # Debug statement
+        
         return video_files
-
-    def clear_frame_buffer(self):
-        # Clear the frame buffer
-        self.frame_buffer = []
 
     def update_video_source(self):
         self.stop_video()  # Stop the current video before loading the next one
@@ -70,46 +66,25 @@ class VideoFeed:
             if self.current_video_index >= len(self.video_files):
                 self.current_video_index = 0  # Restart from the first video
             video_path = self.video_files[self.current_video_index]
-            print(f"Loading video file: {video_path}")  # Debug statement
+            print(f"Loading video file: {video_path}")
             self.cap = cv2.VideoCapture(video_path)
             if not self.cap.isOpened():
                 print(f"Error: Could not open video stream file {video_path}.")
                 self.cap = None
             self.current_video_index += 1
-            print(f"Next video index: {self.current_video_index}")  # Debug statement
 
-        if self.cap is not None:
             self.frame_width = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
             self.frame_height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-            self.clear_frame_buffer()  # Clear the buffer frames for every new video playback
+            self.frame_buffer = []  # Clear the buffer frames for every new video playback
             self.index = 0  # Reset the frame index for each new video
             self.predictions_class = 0  # Clear fall detected class of the previous video
 
             # Add a 3-second delay before showing the next video
             self.parent.after(3000, self.show_frame)
-        else:
-            print("Error: Video stream is not initialized.")
-
-    def stop_video(self):
-        if self.cap is not None:
-            self.cap.release()
-            self.cap = None
-        if self.after_id is not None:
-            self.parent.after_cancel(self.after_id)
-            self.after_id = None
-
-    def reload_settings(self):
-        self.stop_video() 
-        self.model = load_model('falldetect_main.keras', custom_objects={'f1_score': process_data.process_data_functions.f1_score})
-        self.frame_counter = 0
-        self.index = 0
-        self.pose_model_used = SETTINGS.POSE_MODEL_USED
-        self.confidence_threshold = SETTINGS.CONFIDENCE_THRESHOLD
-        self.frame_buffer.clear()
-        self.update_video_source()
 
     def process_frame(self, frame, index):
-        # Perform pose estimation
+         # Perform pose estimation
+        
         if self.pose_model_used == "YOLO":
             keypoints = YOLO.YOLO_pose(frame)
         elif self.pose_model_used == "MEDIAPIPE":
@@ -127,6 +102,7 @@ class VideoFeed:
         if self.predictions_class and self.fall_detected_buffer < 30:
             self.fall_detected_buffer += 1
             self.frame_buffer.pop(0)
+           # self.fall_detection_callback()
             text = "Fall Detected (Buffering)"
             color = (0, 0, 255)
             cv2.putText(frame_with_keypoints, text, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2, cv2.LINE_AA)
@@ -138,19 +114,17 @@ class VideoFeed:
                 predict_start= time.time()
                 
                 predictions = self.model.predict(data_array)
-                
-                
+            
                 self.fall_probability = predictions[0][0]
                 self.predictions_class = int(self.fall_probability > self.confidence_threshold)
-                
                 if self.predictions_class:
                     self.fall_detected_buffer = 0
                     self.fall_counter += 1
-                    self.trigger_fall_detection()
-                    
+                    self.trigger_fall_detection()        
+
                 # Record prediction time
                 self.predict_time = time.time() - predict_start 
-                    
+                
                 self.frame_buffer.pop(0)
                 text = "Fall" if self.predictions_class else "No Fall"
                 color = (0, 0, 255) if self.predictions_class else (255, 255, 255)
@@ -180,28 +154,42 @@ class VideoFeed:
 
             box_color = (0, 0, 255) if self.predictions_class else (0, 255, 0)
 
-            # Ensure coordinates are integers
             cv2.rectangle(frame_with_keypoints, (int(min_x_scaled), int(min_y_scaled)), (int(max_x_scaled), int(max_y_scaled)), box_color, 2)
             
         cv2.putText(frame_with_keypoints, "Frame: " + str(index), (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         self.index += 1
         return frame_with_keypoints
-    
-    def show_frame(self):
-        ret, frame = self.cap.read()
-        if ret:
-            self.process_frame(frame, self.index)
-            self.index += 1
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            img = Image.fromarray(frame)
-            imgtk = ImageTk.PhotoImage(image=img)
-            self.video_label.imgtk = imgtk
-            self.video_label.configure(image=imgtk)
-            self.after_id = self.parent.after(10, self.show_frame)
-        else:
-            self.update_video_source()  # Load the next video when the current one ends
 
-    
+
+    def show_frame(self):
+        if self.cap is None or not self.cap.isOpened():
+            self.video_label.config(text="Error: Unable to access video stream.")
+            return
+
+        self.frame_counter += 1
+        if self.frame_counter % 2 == 0:
+            ret, frame = self.cap.read()
+            if ret:
+                processed_frame = self.process_frame(frame, self.index)
+                frame_rgb = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
+                container_width = self.video_label.winfo_width()
+                container_height = self.video_label.winfo_height()
+
+                if container_width > 0 and container_height > 0:
+                    frame_rgb = cv2.resize(frame_rgb, (container_width, container_height), interpolation=cv2.INTER_AREA)
+                image = ImageTk.PhotoImage(Image.fromarray(frame_rgb))
+                self.video_label.config(image=image)
+                self.video_label.image = image 
+            else:
+                if not self.is_live:
+                    self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  
+        
+        if self.after_id is not None:
+            self.parent.after_cancel(self.after_id)
+        self.after_id = self.parent.after(10, self.show_frame)
+
+        #self.parent.after(40, self.show_frame)
+
     def stop_video(self):
         if self.cap is not None:
             self.cap.release()

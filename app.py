@@ -70,7 +70,7 @@ def trigger_fall_detection():
     fall_event_active = True  
 
     if fall_detected_mode == True:
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        current_time = datetime.now().strftime("%H:%M:%S %d-%m-%Y")
         #detection_time = time.time()
         confidence_value = settings.saved_confidence_value
         fall_probality = round(float(video_feed.fall_probability), 4)
@@ -90,7 +90,7 @@ def trigger_fall_detection():
             popup.geometry(f"{window_width}x{window_height}+{x_cordinate}+{y_cordinate}")
             #response_time = round((time.time() - detection_time) * 1000, 2) 
             Label(popup, text="Fall Detected!", fg="white", bg="#3E4A52", font=("Arial", 14, "bold")).pack(pady=10)
-            Label(popup, text=f"Fall Time: {time.time()}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
+            Label(popup, text=f"Fall Time: {current_time}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
             Label(popup, text=f"Response Time: {response_time} ms", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
             Label(popup, text=f"Confidence Score: {fall_probality}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
             #Label(popup, text=f"Confidence Rate: {confidence_value}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
@@ -100,7 +100,7 @@ def trigger_fall_detection():
             sound_thread = threading.Thread(target=play_fall_sound, daemon=True)
             sound_thread.start()
             popup.protocol("WM_DELETE_WINDOW", lambda: close_popup(popup))
-            history_message = f"Fall detected on {current_time}"
+            history_message = f"Fall detected at {current_time}"
             history_log.add_message(history_message)
 
 def close_popup(popup):

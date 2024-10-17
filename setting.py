@@ -110,8 +110,8 @@ class Settings:
             SETTINGS.POSE_MODEL_USED = "YOLO"
         elif model_text == "MediaPipe":
             SETTINGS.POSE_MODEL_USED = "MEDIAPIPE"
-       # elif model_text == "MoveNet":
-        #    SETTINGS.POSE_MODEL_USED = "MOVENET"
+        elif model_text == "MoveNet":
+            SETTINGS.POSE_MODEL_USED = "MOVENET"
         messagebox.showinfo("Settings Saved", "The settings have been successfully saved and applied.")
         self.console.add_message(message)
         self.video_feed.reload_settings()
