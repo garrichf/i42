@@ -122,7 +122,7 @@ def stop_fall_sound():
     stop_sound_event.set()  
     pygame.mixer.music.stop()
 
-toggle_label_left = tk.Label(toggle_frame, text="Recorded", fg="white", bg="#2B3A42", font=("Arial", 10))
+toggle_label_left = tk.Label(toggle_frame, text="DEMO", fg="white", bg="#2B3A42", font=("Arial", 20))
 toggle_label_left.pack(side="left")
 
 toggle_canvas = tk.Canvas(toggle_frame, width=40, height=22, bg="#2B3A42", highlightthickness=0)
@@ -133,7 +133,7 @@ toggle_button = toggle_canvas.create_oval(4, 4, 18, 18, outline="#FFFFFF", fill=
 
 toggle_canvas.bind("<Button-1>", lambda event: toggle_switch())
 
-toggle_label_right = tk.Label(toggle_frame, text="Live", fg="white", bg="#2B3A42", font=("Arial", 10))
+toggle_label_right = tk.Label(toggle_frame, text="LIVE", fg="white", bg="#2B3A42", font=("Arial", 20))
 toggle_label_right.pack(side="left")
 video_feed = VideoFeed(root, toggle_state, trigger_fall_detection)
 console = Console(root)

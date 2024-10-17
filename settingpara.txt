@@ -1,2 +1,0 @@
-Model: MoveNet
-Confidence Threshold: 1.0
