@@ -1,11 +1,16 @@
 FROM python:3.9-slim
 WORKDIR /app
 COPY . .
-ARG PLATFORM
-RUN if [ "$PLATFORM" = "mac" ]; then \
+CMD ["sh", "-c", "\
+    if [[ \"$(uname -s)\" == \"Darwin\" ]]; then \
+        echo 'Installing Mac dependencies'; \
         pip install -r requirements-mac.txt; \
-    elif [ "$PLATFORM" = "windows" ]; then \
-        pip install -r requirements-window.txt; \
-    fi
-CMD ["python", "app.py"]
+    elif [[ \"$(uname -s)\" == *MINGW* ]]; then \
+        echo 'Installing Windows dependencies'; \
+        pip install -r requirements-windows.txt; \
+    else \
+        echo 'Unsupported OS'; \
+        exit 1; \
+    fi && \
+    python app.py"]
 
