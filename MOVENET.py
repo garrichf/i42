@@ -4,13 +4,13 @@ import numpy as np
 import cv2
 import pandas as pd
 
-# Load the MoveNet model from TensorFlow Hub
+
 try:
     module = hub.load("https://tfhub.dev/google/movenet/singlepose/thunder/4")
 except Exception as error:
     print(f"Failed to load the model: {error}")
 
-# Dictionary that maps from joint names to keypoint indices.
+
 KEYPOINT_DICT = {
     'nose': 0,
     'left_eye': 1,

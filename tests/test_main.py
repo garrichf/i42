@@ -6,42 +6,35 @@ from main import VideoFeed, Settings, Console, HistoryLog
 class TestMainGUI(unittest.TestCase):
 
     def setUp(self):
-        # Setup root for testing
+       
         self.root = tk.Tk()
         self.root.title("Test Fall Detection System")
         self.root.geometry("1300x700")
         self.root.configure(bg="#2B3A42")
         self.after_ids = []
-        self.shutdown_flag = False  # Added flag to indicate if teardown is in progress
+        self.shutdown_flag = False 
     def tearDown(self):
-    # Set shutdown flag to prevent scheduling new callbacks
         self.shutdown_flag = True
 
-        # Cancel any scheduled tasks if needed
         if hasattr(self, 'video_feed'):
-            # If the video feed component has an after_id, cancel it
+           
             if hasattr(self.video_feed, 'after_id') and self.video_feed.after_id:
                 try:
                     self.root.after_cancel(self.video_feed.after_id)
                 except:
-                    pass  # Ignore if already canceled or invalid
+                    pass  
 
-        # Cancel all tasks in after_ids list (cancel every tracked after call)
         for after_id in self.after_ids:
             try:
                 if after_id:
                     self.root.after_cancel(after_id)
             except:
-                pass  # Ignore if already canceled or invalid
-
-        # Force update to process pending events before destruction
+                pass  
         try:
-            self.root.update_idletasks()  # Update any idle tasks in the event loop
-            self.root.update()            # Update main event loop
+            self.root.update_idletasks() 
+            self.root.update()            
         except:
-            pass  # Suppress errors related to closed window
-
-        # Destroy the root window to clean up resources
+            pass 
         self.root.destroy()
 
 
@@ -50,15 +43,10 @@ class TestMainGUI(unittest.TestCase):
     @patch('main.VideoFeed', autospec=True)
     def test_video_feed_initialization(self, MockVideoFeed):
         try:
-            # Mock the toggle_state_var
             toggle_state_var = tk.BooleanVar(value=False)
-            # Create a mock VideoFeed object with the required arguments
             mock_video_feed = MockVideoFeed(self.root, toggle_state_var)
-            # Store after_id for cancellation
             if hasattr(mock_video_feed, 'after_id'):
                 self.after_ids.append(mock_video_feed.after_id)
-
-            # Ensure that the mock VideoFeed was called with the correct arguments
             MockVideoFeed.assert_called_once_with(self.root, toggle_state_var)
             self.assertIsNotNone(mock_video_feed)
             print("Test 'test_video_feed_initialization': PASS")

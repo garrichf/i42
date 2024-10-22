@@ -15,31 +15,24 @@ class Settings:
         self.saved_model_choice = "YOLOv8"
         self.saved_confidence_value = 0.5
         self.settings_file = "settingpara.txt"
-    
-        # Create a frame for the settings pane within the parent window
         self.settings_frame = tk.Frame(parent, bg="#3E4A52")
         self.settings_frame.grid(row=1, column=1, sticky="nsew", padx=20, pady=10)
         settings_label = tk.Label(self.settings_frame, text="SETTING", fg="white", bg="#3E4A52", font=("Arial", 20, "bold"))
         settings_label.pack(pady=10)
 
-        # Center-align the model label and dropdown with more vertical space
         model_label = tk.Label(self.settings_frame, text="Pose Estimation Model", fg="white", bg="#3E4A52", font=("Arial", 20))
         model_label.pack(anchor="center", pady=5)
         model_dropdown = ttk.Combobox(self.settings_frame, values=["YOLOv8", "MoveNet", "MediaPipe"], textvariable=self.model_choice)
         model_dropdown.current(0)
         model_dropdown.pack(anchor="center", pady=15)
 
-        # Center-align the threshold label and slider with more vertical space
         threshold_label = tk.Label(self.settings_frame, text="Confidence Threshold", fg="white", bg="#3E4A52", font=("Arial", 20))
         threshold_label.pack(anchor="center", pady=5)
         threshold_slider = tk.Scale(self.settings_frame, from_=0, to=1, orient="horizontal", resolution=0.1, bg="#3E4A52", length=150,variable=self.confidence_threshold)
         threshold_slider.pack(anchor="center", pady=15)
 
-        # Create custom styles for buttons
         style = ttk.Style()
         style.theme_use('clam')  
-
-        # Configure styles for Save button
         style.configure('Save.TButton', 
                         font=('Arial', 10), 
                         foreground='white', 
@@ -52,7 +45,6 @@ class Settings:
                   background=[('active', '#1F8A4C'), ('pressed', '#16A085')],
                   foreground=[('active', 'white'), ('pressed', 'white')])
 
-        # Configure styles for Reset button
         style.configure('Reset.TButton', 
                         font=('Arial', 10), 
                         foreground='white', 
@@ -65,7 +57,6 @@ class Settings:
                   background=[('active', '#34495E'), ('pressed', '#2C3E50')],
                   foreground=[('active', 'white'), ('pressed', 'white')])
 
-        # Create a frame for the custom-styled buttons to manage layout
         button_frame = tk.Frame(self.settings_frame, bg="#3E4A52")
         button_frame.pack(anchor="center", pady=20)
 
@@ -81,7 +72,6 @@ class Settings:
             file.write(f"Confidence Threshold: {self.confidence_threshold.get()}\n")
 
     def save_settings(self):
-        # Get the current date and time
         self.live_state = self.toggle_state_var.get()
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         selected_model = self.model_choice.get()
@@ -110,8 +100,8 @@ class Settings:
             SETTINGS.POSE_MODEL_USED = "YOLO"
         elif model_text == "MediaPipe":
             SETTINGS.POSE_MODEL_USED = "MEDIAPIPE"
-       # elif model_text == "MoveNet":
-        #    SETTINGS.POSE_MODEL_USED = "MOVENET"
+        elif model_text == "MoveNet":
+            SETTINGS.POSE_MODEL_USED = "MOVENET"
         messagebox.showinfo("Settings Saved", "The settings have been successfully saved and applied.")
         self.console.add_message(message)
         self.video_feed.reload_settings()

@@ -4,7 +4,6 @@ import pandas as pd
 import tensorflow as tf
 from unittest.mock import patch, MagicMock
 
-# Import the functions to be tested
 from MOVENET import (
     init_crop_region,
     torso_visible,
@@ -13,17 +12,16 @@ from MOVENET import (
     keypoints_to_dataframe,
     frame_inference,
     MOVENET_pose,
-    run_inference  # Add this import
+    run_inference 
 )
 
 class TestMoveNetPose(unittest.TestCase):
 
     def setUp(self):
-        # Set up any necessary test data
         self.image_height = 480
         self.image_width = 640
         self.keypoints_with_scores = np.random.rand(1, 1, 17, 3)
-        self.keypoints_with_scores[0, 0, :, 2] = 0.5  # Set all confidence scores to 0.5
+        self.keypoints_with_scores[0, 0, :, 2] = 0.5 
 
     def test_init_crop_region(self):
         crop_region = init_crop_region(self.image_height, self.image_width)
@@ -40,10 +38,8 @@ class TestMoveNetPose(unittest.TestCase):
         self.keypoints_with_scores[0, 0, 5:7, 2] = 0.4  
         self.keypoints_with_scores[0, 0, 11:13, 2] = 0.4  
         self.assertTrue(torso_visible(self.keypoints_with_scores))
-
-        # Test when torso is not visible
-        self.keypoints_with_scores[0, 0, 5:7, 2] = 0.3  # Set shoulder confidence scores below threshold
-        self.keypoints_with_scores[0, 0, 11:13, 2] = 0.3  # Set hip confidence scores below threshold
+        self.keypoints_with_scores[0, 0, 5:7, 2] = 0.3  
+        self.keypoints_with_scores[0, 0, 11:13, 2] = 0.3  
         self.assertFalse(torso_visible(self.keypoints_with_scores))
 
     def test_determine_torso_and_body_range(self):
@@ -55,7 +51,6 @@ class TestMoveNetPose(unittest.TestCase):
         }
         center_y, center_x = 0.5, 0.5
         
-        # Mock the KEYPOINT_DICT
         with patch('MOVENET.KEYPOINT_DICT', {'left_shoulder': 5, 'right_shoulder': 6, 'left_hip': 11, 'right_hip': 12}):
             ranges = determine_torso_and_body_range(self.keypoints_with_scores, target_keypoints, center_y, center_x)
         
@@ -113,7 +108,7 @@ if __name__ == '__main__':
     test_suite = unittest.TestLoader().loadTestsFromTestCase(TestMoveNetPose)
     test_result = unittest.TextTestRunner(verbosity=2).run(test_suite)
 
-    # Save test results
+
     with open('test_results.txt', 'w') as f:
         f.write(f"Tests run: {test_result.testsRun}\n")
         f.write(f"Tests passed: {test_result.testsRun - len(test_result.failures) - len(test_result.errors)}\n")
