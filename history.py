@@ -1,6 +1,21 @@
 import tkinter as tk
 
 class HistoryLog:
+    """
+    A class to represent a history log in a Tkinter application.
+    Attributes
+    ----------
+    history_frame : tk.Frame
+        The frame widget that contains the history log components.
+    history_label : tk.Label
+        The label widget that displays the title "HISTORY LOG".
+    text_widget : tk.Text
+        The text widget that displays the log messages.
+    Methods
+    -------
+    add_message(message):
+        Adds a new message to the history log.
+    """
     def __init__(self, parent):
     
         self.history_frame = tk.Frame(parent, bg="#2B3A42")

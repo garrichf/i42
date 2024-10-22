@@ -39,6 +39,20 @@ keypoint_columns = [
 ]
 
 def process_frame(frame):
+    """
+    Processes a single video frame to extract pose keypoints using a pose estimation model.
+    Args:
+        frame (numpy.ndarray): The input video frame in BGR format.
+    Returns:
+        pandas.DataFrame: A DataFrame containing the extracted keypoints for the frame.
+                          If no keypoints are detected, the DataFrame will contain NaN values.
+                          The DataFrame will have columns specified by `keypoint_columns`.
+    Notes:
+        - The function converts the input frame from BGR to RGB format.
+        - Pose estimation is performed using a pre-trained model.
+        - Keypoints are extracted only if the average confidence of detected landmarks is above a threshold.
+        - If no landmarks are detected, the DataFrame will have NaN values for all keypoints.
+    """
     df = pd.DataFrame(columns=keypoint_names)
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         
@@ -76,6 +90,15 @@ def process_frame(frame):
     return df
 
 def MEDIAPIPE_pose(frame):
+    """
+    Processes a video frame to detect and return pose keypoints using MediaPipe.
+
+    Args:
+        frame: A single frame of video data to be processed.
+
+    Returns:
+        keypoints: The detected pose keypoints from the processed frame.
+    """
     print("MEDIAPIPE is Running")
     keypoints = process_frame(frame)
     return keypoints

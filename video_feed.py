@@ -12,6 +12,39 @@ from tensorflow.keras.models import load_model
 from tkinter import Label
 class VideoFeed:
     def __init__(self, parent, toggle_state_var,trigger_fall_detection):
+        """
+        Initializes the VideoFeed class.
+
+        Args:
+            parent (tkinter.Tk or tkinter.Frame): The parent widget.
+            toggle_state_var (tkinter.BooleanVar): A Tkinter variable to toggle the state.
+            trigger_fall_detection (function): A callback function to trigger fall detection.
+
+        Attributes:
+            trigger_fall_detection (function): A callback function to trigger fall detection.
+            log_csv_filepath (str): Path to the log CSV file.
+            processed_output_csv (str): Path to the processed output CSV file.
+            parent (tkinter.Tk or tkinter.Frame): The parent widget.
+            toggle_state_var (tkinter.BooleanVar): A Tkinter variable to toggle the state.
+            video_label (tkinter.Label): Label widget to display video.
+            cap (cv2.VideoCapture or None): Video capture object.
+            video_path (str): Path to the video file.
+            is_live (bool): Flag to indicate if the video feed is live.
+            frame_counter (int): Counter for the frames processed.
+            model (tensorflow.keras.Model): Loaded fall detection model.
+            pose_model_used (str): Pose model used for detection.
+            confidence_threshold (float): Confidence threshold for detection.
+            sequence_length (int): Length of the sequence for detection.
+            frame_buffer (list): Buffer to store frames.
+            predictions_class (int): Class of the predictions.
+            fall_detected_buffer (int): Buffer to store fall detection results.
+            fall_counter (int): Counter for the falls detected.
+            box_color (tuple): Color of the bounding box.
+            index (int): Index for frame processing.
+            frame_width (int): Width of the video frame.
+            frame_height (int): Height of the video frame.
+            after_id (int or None): ID of the scheduled `after` call.
+        """
         self.trigger_fall_detection = trigger_fall_detection
         self.log_csv_filepath = SETTINGS.LOG_FILEPATH
         self.processed_output_csv = SETTINGS.PROCESSED_OUTPUT_CSV
@@ -43,6 +76,17 @@ class VideoFeed:
 
     
     def update_video_source(self):
+        """
+        Updates the video source based on the current state.
+        If the current video source is open, it releases it first. Then, it checks the state of `toggle_state_var` to determine
+        whether to use a live video feed from the default camera or a pre-recorded video from a specified path. It also updates
+        the frame width and height properties based on the new video source.
+        Attributes:
+            self.cap (cv2.VideoCapture): The video capture object.
+            self.is_live (bool): The state indicating whether to use a live video feed.
+            self.frame_width (float): The width of the video frames.
+            self.frame_height (float): The height of the video frames.
+        """
         
         if self.cap is not None:
             self.cap.release()
@@ -59,6 +103,21 @@ class VideoFeed:
         self.show_frame()
 
     def process_frame(self, frame, index):
+        """
+        Processes a video frame for pose estimation and fall detection.
+        Args:
+            frame (numpy.ndarray): The video frame to process.
+            index (int): The index of the current frame in the video stream.
+        Returns:
+            numpy.ndarray: The processed video frame with keypoints and annotations.
+        This method performs the following steps:
+        1. Pose estimation using the specified model (YOLO, MEDIAPIPE, or MOVENET).
+        2. Processes the keypoints and performs fall detection.
+        3. Draws keypoints and bounding boxes on the frame.
+        4. Buffers frames and makes fall predictions based on a sequence of frames.
+        5. Annotates the frame with fall detection status and frame index.
+        The method updates internal buffers and counters used for fall detection.
+        """
          # Perform pose estimation
         
         if self.pose_model_used == "YOLO":
@@ -118,6 +177,23 @@ class VideoFeed:
 
 
     def show_frame(self):
+        """
+        Continuously captures and displays frames from a video source.
+        This method checks if the video capture object is available and opened.
+        If not, it updates the video label with an error message. It processes
+        every second frame to reduce the processing load. The frame is processed,
+        converted to RGB, resized to fit the video label's dimensions, and then
+        displayed on the video label. If the video is not live and the end is 
+        reached, it resets to the first frame. The method schedules itself to 
+        run again after a short delay.
+        Attributes:
+            cap (cv2.VideoCapture): The video capture object.
+            video_label (tk.Label): The label widget to display the video frames.
+            frame_counter (int): Counter to keep track of frames.
+            is_live (bool): Flag to indicate if the video is live.
+            after_id (str): ID of the scheduled method call.
+            parent (tk.Widget): The parent widget for scheduling the method.
+        """
         if self.cap is None or not self.cap.isOpened():
             self.video_label.config(text="Unable to access video source")
             return
@@ -147,6 +223,18 @@ class VideoFeed:
         #self.parent.after(40, self.show_frame)
 
     def stop_video(self):
+        """
+        Stops the video feed by releasing the video capture object and cancelling any scheduled updates.
+
+        This method performs the following actions:
+        1. Releases the video capture object if it is currently active.
+        2. Cancels any scheduled updates to the video feed.
+
+        Attributes:
+            cap (cv2.VideoCapture or None): The video capture object.
+            after_id (str or None): The identifier for the scheduled update.
+            parent (tkinter.Widget): The parent widget that schedules the updates.
+        """
         if self.cap is not None:
             self.cap.release()
             self.cap = None
@@ -155,6 +243,20 @@ class VideoFeed:
             self.after_id = None
 
     def reload_settings(self):
+        """
+        Reloads the settings for the video feed.
+
+        This method performs the following actions:
+        1. Stops the current video feed.
+        2. Loads the fall detection model with custom objects.
+        3. Resets the frame counter and index.
+        4. Updates the pose model and confidence threshold from settings.
+        5. Clears the frame buffer.
+        6. Updates the video source.
+
+        Raises:
+            Any exceptions that `load_model` or `update_video_source` might raise.
+        """
         self.stop_video() 
         self.model = load_model('falldetect_main.keras', custom_objects={'f1_score': process_data.process_data_functions.f1_score})
         self.frame_counter = 0

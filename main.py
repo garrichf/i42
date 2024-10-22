@@ -1,3 +1,39 @@
+"""
+Main script for fall detection using various pose estimation models and a pre-trained fall detection model.
+This script processes video input (either from a file or webcam), extracts keypoints using a specified pose estimation model,
+and uses a pre-trained neural network to detect falls based on the extracted keypoints. The results are displayed in real-time
+with bounding boxes and fall detection status overlaid on the video frames.
+Modules:
+    - cv2: OpenCV for video processing and display.
+    - pandas: Data manipulation and analysis.
+    - numpy: Numerical operations.
+    - YOLO, MEDIAPIPE, MOVENET: Pose estimation models.
+    - SETTINGS: Configuration settings for the script.
+    - process_data: Custom module for processing keypoints and other data.
+    - tensorflow.keras.models: For loading the pre-trained fall detection model.
+Functions:
+    - initialize_log_output: Initializes log files for storing processed data.
+    - YOLO_pose, MEDIAPIPE_pose, MOVENET_pose: Functions to extract keypoints using respective models.
+    - process_data: Processes keypoints and logs data.
+    - draw_keypoints_on_frame: Draws keypoints on the video frame.
+    - find_min_max_coordinates: Finds the minimum and maximum coordinates of keypoints for bounding box.
+Attributes:
+    - log_csv_filepath: Path to the log CSV file.
+    - processed_output_csv: Path to the processed output CSV file.
+    - file_path: Path to the video file.
+    - index: Frame index counter.
+    - is_demo_mode: Flag to indicate if the script is running in demo mode.
+    - confidence_threshold: Threshold for fall detection confidence.
+    - pose_model_used: The pose estimation model to use.
+    - frame_buffer: Buffer to hold frames for prediction.
+    - sequence_length: Number of frames to collect before making a prediction.
+    - predictions_class: Class of the prediction (0 for No Fall, 1 for Fall).
+    - fall_detected_buffer: Buffer counter for fall detection.
+    - fall_counter: Counter for the number of falls detected.
+    - box_color: Color of the bounding box.
+Usage:
+    Run the script to start processing video input and detecting falls. Press 'q' to quit the video display window.
+"""
 import cv2
 import pandas as pd
 import numpy as np
