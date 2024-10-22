@@ -54,6 +54,18 @@ loaded_mean = np.load('constants/precomputed_mean.npy')
 loaded_std = np.load('constants/precomputed_std.npy')
 
 def process_data(keypoints_df, index, log_csv_filepath):
+    """
+    Processes the keypoints DataFrame by adding angles, calculating acceleration, 
+    and applying scaling transformations. The processed data is then appended to 
+    or saved in a CSV file.
+    Args:
+        keypoints_df (pd.DataFrame): DataFrame containing keypoints data.
+        index (int): Index indicating the current position in the processing sequence.
+        log_csv_filepath (str): Filepath to the CSV file where the processed data will be logged.
+    Returns:
+        pd.DataFrame: The processed DataFrame with added angles, calculated acceleration, 
+                      and applied scaling transformations.
+    """
     log_df = pd.read_csv(log_csv_filepath)
     if index > 0:
         keypoints_df = keypoints_df.drop(columns=columns_to_remove)

@@ -26,6 +26,16 @@ keypoint_names = [
 ]
 
 def process_frame(frame):
+    """
+    Processes a video frame to extract keypoint data using a pre-trained model.
+
+    Args:
+        frame (numpy.ndarray): The input video frame to be processed.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing the extracted keypoint data with 
+                          columns corresponding to the keypoint names.
+    """
     df = pd.DataFrame(columns=keypoint_names)
     kpt_data = {}
     results = model.predict(frame, conf=0.3)
@@ -45,6 +55,15 @@ def process_frame(frame):
     return df
 
 def YOLO_pose(frame):
+    """
+    Processes a given frame using the YOLO algorithm to detect keypoints.
+
+    Args:
+        frame: The input frame to be processed.
+
+    Returns:
+        keypoints: The detected keypoints from the processed frame.
+    """
     print("YOLO is Running")
     keypoints = process_frame(frame)
     return keypoints
