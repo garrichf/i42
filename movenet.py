@@ -6,7 +6,7 @@ import pandas as pd
 
 # Load the MoveNet model from TensorFlow Hub
 try:
-    MODULE = hub.load("https://tfhub.dev/google/movenet/singlepose/thunder/4")
+    MODULE = hub.load("https://www.kaggle.com/models/google/movenet/TensorFlow2/singlepose-thunder/4")
 except Exception as error:
     print(f"Failed to load the model: {error}")
 
@@ -327,8 +327,8 @@ def frame_inference(frame, movenet, input_size, init_crop_region, run_inference,
     crop_region = determine_crop_region(
         keypoints_with_scores, image_height, image_width)
 
-    # Set coordinates with low confidence to -1
-    keypoints_with_scores[0, 0, keypoints_with_scores[0, 0, :, 2] < MIN_CROP_KEYPOINT_SCORE, :2] = -1
+    # # Set coordinates with low confidence to -1
+    # keypoints_with_scores[0, 0, keypoints_with_scores[0, 0, :, 2] < MIN_CROP_KEYPOINT_SCORE, :2] = -1
 
     # Convert keypoints to DataFrame
     df = keypoints_to_dataframe(keypoints_with_scores)
