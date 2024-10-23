@@ -6,9 +6,10 @@ import pandas as pd
 
 # Load the MoveNet model from TensorFlow Hub
 try:
-    MODULE = hub.load("https://www.kaggle.com/models/google/movenet/TensorFlow2/singlepose-thunder/4")
+    module = hub.load("https://tfhub.dev/google/movenet/singlepose/thunder/4")
 except Exception as error:
     print(f"Failed to load the model: {error}")
+
 
 # Dictionary that maps from joint names to keypoint indices.
 KEYPOINT_DICT = {
@@ -50,7 +51,7 @@ def movenet(input_image):
         Exception: If there is an error loading the MoveNet model from TensorFlow Hub.
     """
 
-    model = MODULE.signatures['serving_default']
+    model = module.signatures['serving_default']
 
     # SavedModel format expects tensor type of int32.
     input_image = tf.cast(input_image, dtype=tf.int32)
@@ -301,17 +302,6 @@ def load_stream(stream_path):
 
 def frame_inference(frame, movenet, input_size, init_crop_region, run_inference, determine_crop_region):
     
-    print(f"Frame shape: {frame.shape}")  # Add this line to debug the shape
-    if len(frame.shape) == 3:
-        image_height, image_width, _ = frame.shape
-    elif len(frame.shape) == 2:
-        image_height, image_width = frame.shape
-        _ = 1  # Assuming a single channel (grayscale)
-    else:
-        raise ValueError(f"Unexpected frame shape: {frame.shape}")
-
-    # Rest of your code...
-
     # Get the frame dimensions
     image_height, image_width, _ = frame.shape
 
@@ -336,25 +326,18 @@ def frame_inference(frame, movenet, input_size, init_crop_region, run_inference,
     crop_region = determine_crop_region(
         keypoints_with_scores, image_height, image_width)
 
-    # # Set coordinates with low confidence to -1
-    # keypoints_with_scores[0, 0, keypoints_with_scores[0, 0, :, 2] < MIN_CROP_KEYPOINT_SCORE, :2] = -1
+    # # Set coordinates with low confidence to None
+    # keypoints_with_scores[0, 0, keypoints_with_scores[0, 0, :, 2] < MIN_CROP_KEYPOINT_SCORE, :2] = -99
 
     # Convert keypoints to DataFrame
     df = keypoints_to_dataframe(keypoints_with_scores)
     
     return df
 
-def movenet(frame):
-    
-    # Load the MoveNet model to process frame.
-    df = frame_inference(frame, movenet, INPUT_SIZE, init_crop_region, run_inference, determine_crop_region)
-
-    return df
-
 def demo():
    video_path = 'ADL.mp4'
    for frame in load_stream(video_path):
-        df = movenet(frame)
+        df = frame_inference(frame, movenet, INPUT_SIZE, init_crop_region, run_inference, determine_crop_region)
         print(df)
 
 demo()
