@@ -301,6 +301,17 @@ def load_stream(stream_path):
 
 def frame_inference(frame, movenet, input_size, init_crop_region, run_inference, determine_crop_region):
     
+    print(f"Frame shape: {frame.shape}")  # Add this line to debug the shape
+    if len(frame.shape) == 3:
+        image_height, image_width, _ = frame.shape
+    elif len(frame.shape) == 2:
+        image_height, image_width = frame.shape
+        _ = 1  # Assuming a single channel (grayscale)
+    else:
+        raise ValueError(f"Unexpected frame shape: {frame.shape}")
+
+    # Rest of your code...
+
     # Get the frame dimensions
     image_height, image_width, _ = frame.shape
 
@@ -310,11 +321,9 @@ def frame_inference(frame, movenet, input_size, init_crop_region, run_inference,
     # Initialize the crop region
     crop_region = init_crop_region(image_height, image_width)
 
-    # Convert the frame from BGR to RGB
-    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
     # Convert the frame to a tensor
     frame_tensor = tf.convert_to_tensor(frame_rgb, dtype=tf.uint8)
+
     # Add batch dimension
     frame_tensor = tf.expand_dims(frame_tensor, axis=0)
 
