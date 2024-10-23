@@ -196,20 +196,7 @@ def determine_crop_region(
     return init_crop_region(image_height, image_width)
   
 def crop_and_resize(image, crop_region, crop_size):
-  """
-  Crops and resizes the image to prepare it for the model input.
-
-  Args:
-    image (tf.Tensor): The input image tensor.
-    crop_region (dict): A dictionary specifying the crop region with keys 
-              'y_min', 'x_min', 'y_max', and 'x_max'.
-    crop_size (tuple): A tuple specifying the size (height, width) to which 
-               the cropped image should be resized.
-
-  Returns:
-    tf.Tensor: The cropped and resized image tensor.
-  """
-
+  """Crops and resize the image to prepare for the model input."""
   boxes=[[crop_region['y_min'], crop_region['x_min'],
           crop_region['y_max'], crop_region['x_max']]]
   output_image = tf.image.crop_and_resize(
@@ -315,18 +302,6 @@ def load_stream(stream_path):
     cv2.destroyAllWindows()
 
 def frame_inference(frame, movenet, input_size, init_crop_region, run_inference, determine_crop_region):
-    """
-    Perform inference on a single frame using the MoveNet model.
-    Args:
-      frame (numpy.ndarray): The input frame in BGR format.
-      movenet (tf.Module): The MoveNet model instance.
-      input_size (int): The size of the input image for the model.
-      init_crop_region (function): Function to initialize the crop region.
-      run_inference (function): Function to run the MoveNet inference.
-      determine_crop_region (function): Function to determine the crop region based on keypoints.
-    Returns:
-      pandas.DataFrame: DataFrame containing the keypoints with scores.
-    """
     
     # Get the frame dimensions
     image_height, image_width, _ = frame.shape
@@ -337,11 +312,9 @@ def frame_inference(frame, movenet, input_size, init_crop_region, run_inference,
     # Initialize the crop region
     crop_region = init_crop_region(image_height, image_width)
 
-    # Convert the frame from BGR to RGB
-    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
     # Convert the frame to a tensor
     frame_tensor = tf.convert_to_tensor(frame_rgb, dtype=tf.uint8)
+    
     # Add batch dimension
     frame_tensor = tf.expand_dims(frame_tensor, axis=0)
 
@@ -363,16 +336,10 @@ def frame_inference(frame, movenet, input_size, init_crop_region, run_inference,
     return df
 
 def MOVENET_pose(frame):
-    """
-    Processes a given frame using the MoveNet model to detect poses.
-    Args:
-      frame (numpy.ndarray): The input frame to be processed.
-    Returns:
-      pandas.DataFrame: The processed data frame containing pose detection results.
-    """
     
     print("MoveNet is Running")
     # Load the MoveNet model to process frame.
     df = frame_inference(frame, movenet, INPUT_SIZE, init_crop_region, run_inference, determine_crop_region)
 
     return df
+

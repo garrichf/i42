@@ -10,6 +10,8 @@ import SETTINGS
 import process_data
 from tensorflow.keras.models import load_model
 from tkinter import Label
+import time
+import os
 class VideoFeed:
     def __init__(self, parent, toggle_state_var,trigger_fall_detection):
         """
@@ -144,6 +146,9 @@ class VideoFeed:
         else:
             if len(self.frame_buffer) == self.sequence_length:
                 data_array = np.vstack(self.frame_buffer).astype(np.float32).reshape(1, self.sequence_length, 63)
+                
+                predict_start = time.time()
+
                 predictions = self.model.predict(data_array)
                 self.fall_probability = predictions[0][0]
                 self.predictions_class = int(self.fall_probability > self.confidence_threshold)
@@ -152,6 +157,8 @@ class VideoFeed:
                     self.fall_counter += 1
                     self.trigger_fall_detection()
                     
+                
+                self.predict_time = time.time() - predict_start
                 self.frame_buffer.pop(0)
                 text = "Fall" if self.predictions_class else "No Fall"
                 color = (0, 0, 255) if self.predictions_class else (255, 255, 255)
