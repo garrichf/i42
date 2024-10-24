@@ -88,7 +88,7 @@ def trigger_fall_detection():
             x_cordinate = int((screen_width / 2) - (window_width / 2))
             y_cordinate = int((screen_height / 2) - (window_height / 2))
             popup.geometry(f"{window_width}x{window_height}+{x_cordinate}+{y_cordinate}")
-            #response_time = round((time.time() - detection_time) * 1000, 2) 
+
             Label(popup, text="Fall Detected!", fg="white", bg="#3E4A52", font=("Arial", 14, "bold")).pack(pady=10)
             Label(popup, text=f"Fall Time: {current_time}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
             Label(popup, text=f"Response Time: {response_time} ms", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
