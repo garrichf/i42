@@ -143,10 +143,11 @@ def trigger_fall_detection():
 
     if fall_detected_mode == True:
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        #detection_time = time.time()
         confidence_value = settings.saved_confidence_value
         fall_probality = round(float(video_feed.fall_probability), 4)
-        #response_time = round((video_feed.predict_time * 1000), 2)
+        # Calculate the response time in milliseconds
+        response_time = round((video_feed.predict_time * 1000), 2)
+
         if confidence_value is not None:
             popup = Toplevel()
             popup.title("Fall Detection Alert")
@@ -158,13 +159,12 @@ def trigger_fall_detection():
             x_cordinate = int((screen_width / 2) - (window_width / 2))
             y_cordinate = int((screen_height / 2) - (window_height / 2))
             popup.geometry(f"{window_width}x{window_height}+{x_cordinate}+{y_cordinate}")
-            #response_time = round((time.time() - detection_time) * 1000, 2) 
+
             Label(popup, text="Fall Detected!", fg="white", bg="#3E4A52", font=("Arial", 14, "bold")).pack(pady=10)
             Label(popup, text=f"Fall Time: {current_time}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
-            #Label(popup, text=f"Response Time: {response_time}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
+            Label(popup, text=f"Response Time: {response_time} ms", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
             Label(popup, text=f"Confidence Score: {fall_probality}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
-            #Label(popup, text=f"Confidence Rate: {confidence_value}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
-            #Label(popup, text=f"Confidnece Score: {fall_probality}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
+
             popup.after(10000, lambda: close_popup(popup))
 
             sound_thread = threading.Thread(target=play_fall_sound, daemon=True)

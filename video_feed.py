@@ -56,7 +56,7 @@ class VideoFeed:
         self.video_label = Label(parent, bg="black")
         self.video_label.grid(row=1, column=0, sticky="nsew", padx=20, pady=10)  
         self.cap = None
-        self.video_path = "video/Footage46_CAUCAFDD_Subject_9_Fall_1.mp4" 
+        self.video_path = "video\Footage4_CAUCAFDD_Subject_10_Fall_4.mp4" 
         self.is_live = False  
         self.frame_counter = 0  
         self.model = load_model('falldetect_main.keras', custom_objects={'f1_score': process_data.process_data_functions.f1_score})
@@ -147,18 +147,21 @@ class VideoFeed:
             if len(self.frame_buffer) == self.sequence_length:
                 data_array = np.vstack(self.frame_buffer).astype(np.float32).reshape(1, self.sequence_length, 63)
                 
+                # Record start time for prediction
                 predict_start = time.time()
 
                 predictions = self.model.predict(data_array)
                 self.fall_probability = predictions[0][0]
                 self.predictions_class = int(self.fall_probability > self.confidence_threshold)
                 if self.predictions_class:
+                    
                     self.fall_detected_buffer = 0
                     self.fall_counter += 1
-                    self.trigger_fall_detection()
-                    
+                    self.trigger_fall_detection()    
                 
+                # Record the time taken for prediction
                 self.predict_time = time.time() - predict_start
+                
                 self.frame_buffer.pop(0)
                 text = "Fall" if self.predictions_class else "No Fall"
                 color = (0, 0, 255) if self.predictions_class else (255, 255, 255)
@@ -167,16 +170,30 @@ class VideoFeed:
             else:
                 cv2.putText(frame_with_keypoints, "Starting Up", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
-       
+
+        # Define a margin percentage for the bounding box
+        margin_percentage = 0.15
+
         if not (np.isnan(min_x) or np.isnan(min_y) or np.isnan(max_x) or np.isnan(max_y)):
             min_x_scaled = int(min_x * self.frame_width)
             max_x_scaled = int(max_x * self.frame_width)
             min_y_scaled = int(min_y * self.frame_height)
             max_y_scaled = int(max_y * self.frame_height)
 
+            # Calculate the margin in pixels
+            margin_x = int((max_x_scaled - min_x_scaled) * margin_percentage)
+            margin_y = int((max_y_scaled - min_y_scaled) * margin_percentage)
+
+            # Adjust the coordinates to include the margin
+            min_x_scaled = max(0, min_x_scaled - margin_x)
+            max_x_scaled = min(self.frame_width, max_x_scaled + margin_x)
+            min_y_scaled = max(0, min_y_scaled - margin_y)
+            max_y_scaled = min(self.frame_height, max_y_scaled + margin_y)
+
             box_color = (0, 0, 255) if self.predictions_class else (0, 255, 0)
 
-            cv2.rectangle(frame_with_keypoints, (min_x_scaled, min_y_scaled), (max_x_scaled, max_y_scaled), box_color, 2)
+            # Ensure coordinates are integers
+            cv2.rectangle(frame_with_keypoints, (int(min_x_scaled), int(min_y_scaled)), (int(max_x_scaled), int(max_y_scaled)), box_color, 2)           
             
         cv2.putText(frame_with_keypoints, "Frame: " + str(index), (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         self.index += 1
