@@ -154,13 +154,12 @@ class VideoFeed:
                 self.fall_probability = predictions[0][0]
                 self.predictions_class = int(self.fall_probability > self.confidence_threshold)
                 if self.predictions_class:
-                    
                     self.fall_detected_buffer = 0
                     self.fall_counter += 1
                     self.trigger_fall_detection()    
                 
-                # Record the time taken for prediction
-                self.predict_time = time.time() - predict_start
+                # Record and calculate the time taken for prediction
+                self.predict_time = round(((time.time() - predict_start) * 1000), 2)
                 
                 self.frame_buffer.pop(0)
                 text = "Fall" if self.predictions_class else "No Fall"
