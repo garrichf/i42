@@ -1,5 +1,6 @@
 import tkinter as tk
 from PIL import Image, ImageTk
+import os
 import cv2
 import pandas as pd
 import numpy as np
@@ -11,42 +12,9 @@ import process_data
 from tensorflow.keras.models import load_model
 from tkinter import Label
 import time
-import os
+
 class VideoFeed:
-    def __init__(self, parent, toggle_state_var,trigger_fall_detection):
-        """
-        Initializes the VideoFeed class.
-
-        Args:
-            parent (tkinter.Tk or tkinter.Frame): The parent widget.
-            toggle_state_var (tkinter.BooleanVar): A Tkinter variable to toggle the state.
-            trigger_fall_detection (function): A callback function to trigger fall detection.
-
-        Attributes:
-            trigger_fall_detection (function): A callback function to trigger fall detection.
-            log_csv_filepath (str): Path to the log CSV file.
-            processed_output_csv (str): Path to the processed output CSV file.
-            parent (tkinter.Tk or tkinter.Frame): The parent widget.
-            toggle_state_var (tkinter.BooleanVar): A Tkinter variable to toggle the state.
-            video_label (tkinter.Label): Label widget to display video.
-            cap (cv2.VideoCapture or None): Video capture object.
-            video_path (str): Path to the video file.
-            is_live (bool): Flag to indicate if the video feed is live.
-            frame_counter (int): Counter for the frames processed.
-            model (tensorflow.keras.Model): Loaded fall detection model.
-            pose_model_used (str): Pose model used for detection.
-            confidence_threshold (float): Confidence threshold for detection.
-            sequence_length (int): Length of the sequence for detection.
-            frame_buffer (list): Buffer to store frames.
-            predictions_class (int): Class of the predictions.
-            fall_detected_buffer (int): Buffer to store fall detection results.
-            fall_counter (int): Counter for the falls detected.
-            box_color (tuple): Color of the bounding box.
-            index (int): Index for frame processing.
-            frame_width (int): Width of the video frame.
-            frame_height (int): Height of the video frame.
-            after_id (int or None): ID of the scheduled `after` call.
-        """
+    def __init__(self, parent, toggle_state_var, trigger_fall_detection):
         self.trigger_fall_detection = trigger_fall_detection
         self.log_csv_filepath = SETTINGS.LOG_FILEPATH
         self.processed_output_csv = SETTINGS.PROCESSED_OUTPUT_CSV
@@ -56,7 +24,9 @@ class VideoFeed:
         self.video_label = Label(parent, bg="black")
         self.video_label.grid(row=1, column=0, sticky="nsew", padx=20, pady=10)  
         self.cap = None
-        self.video_path = "video\Footage4_CAUCAFDD_Subject_10_Fall_4.mp4" 
+        self.video_folder = "video"
+        self.video_files = self.get_video_files(self.video_folder)
+        self.current_video_index = 0
         self.is_live = False  
         self.frame_counter = 0  
         self.model = load_model('falldetect_main.keras', custom_objects={'f1_score': process_data.process_data_functions.f1_score})
@@ -69,14 +39,20 @@ class VideoFeed:
         self.predictions_class = 0
         self.fall_detected_buffer = 99
         self.fall_counter = 0
-        self.box_color = (255,255,255) 
+        self.box_color = (255, 255, 255) 
         self.index = 0
         self.frame_width = 0
         self.frame_height = 0
         self.after_id = None  # Store the `after` call ID
         self.update_video_source()
 
-    
+    def get_video_files(self, folder):
+        """
+        Returns a list of video files in the specified folder.
+        """
+        video_extensions = ('.mp4', '.avi', '.mov', '.mkv')
+        return [os.path.join(folder, f) for f in os.listdir(folder) if f.endswith(video_extensions)]
+
     def update_video_source(self):
         """
         Updates the video source based on the current state.
@@ -86,23 +62,51 @@ class VideoFeed:
         Attributes:
             self.cap (cv2.VideoCapture): The video capture object.
             self.is_live (bool): The state indicating whether to use a live video feed.
-            self.frame_width (float): The width of the video frames.
-            self.frame_height (float): The height of the video frames.
         """
-        
         if self.cap is not None:
             self.cap.release()
 
-        self.is_live = self.toggle_state_var.get()
-
-        if self.is_live:
+        if self.toggle_state_var.get():
             self.cap = cv2.VideoCapture(0)
-           
+            self.is_live = True
         else:
-            self.cap = cv2.VideoCapture(self.video_path)
-        self.frame_width = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-        self.frame_height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-        self.show_frame()
+            if self.current_video_index >= len(self.video_files):
+                self.current_video_index = 0
+            self.cap = cv2.VideoCapture(self.video_files[self.current_video_index])
+            self.is_live = False
+
+        if self.cap.isOpened():
+            self.frame_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            self.frame_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            self.show_frame()
+
+    
+    # def update_video_source(self):
+    #     """
+    #     Updates the video source based on the current state.
+    #     If the current video source is open, it releases it first. Then, it checks the state of `toggle_state_var` to determine
+    #     whether to use a live video feed from the default camera or a pre-recorded video from a specified path. It also updates
+    #     the frame width and height properties based on the new video source.
+    #     Attributes:
+    #         self.cap (cv2.VideoCapture): The video capture object.
+    #         self.is_live (bool): The state indicating whether to use a live video feed.
+    #         self.frame_width (float): The width of the video frames.
+    #         self.frame_height (float): The height of the video frames.
+    #     """
+        
+    #     if self.cap is not None:
+    #         self.cap.release()
+
+    #     self.is_live = self.toggle_state_var.get()
+
+    #     if self.is_live:
+    #         self.cap = cv2.VideoCapture(0)
+           
+    #     else:
+    #         self.cap = cv2.VideoCapture(self.video_path)
+    #     self.frame_width = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+    #     self.frame_height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    #     self.show_frame()
 
     def process_frame(self, frame, index):
         """

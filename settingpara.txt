@@ -1,0 +1,2 @@
+Model: YOLOv8
+Confidence Threshold: 0.5

@@ -146,7 +146,7 @@ def trigger_fall_detection():
         confidence_value = settings.saved_confidence_value
         fall_probality = round(float(video_feed.fall_probability), 4)
         # Calculate the response time in milliseconds
-        response_time = round((video_feed.predict_time * 1000), 2)
+        response_time = video_feed.predict_time * 1000
 
         if confidence_value is not None:
             popup = Toplevel()
