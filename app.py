@@ -74,7 +74,7 @@ def trigger_fall_detection():
         #detection_time = time.time()
         confidence_value = settings.saved_confidence_value
         fall_probality = round(float(video_feed.fall_probability), 4)
-        response_time = round((video_feed.predict_time * 1000), 2)
+        response_time = video_feed.predict_time
 
 
         if confidence_value is not None:
@@ -91,7 +91,7 @@ def trigger_fall_detection():
 
             Label(popup, text="Fall Detected!", fg="white", bg="#3E4A52", font=("Arial", 14, "bold")).pack(pady=10)
             Label(popup, text=f"Fall Time: {current_time}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
-            Label(popup, text=f"Response Time: {response_time} ms", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
+            Label(popup, text=f"Response Time: {response_time}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
             Label(popup, text=f"Confidence Score: {fall_probality}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
             #Label(popup, text=f"Confidence Rate: {confidence_value}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
             #Label(popup, text=f"Confidnece Score: {fall_probality}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)

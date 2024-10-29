@@ -45,8 +45,7 @@ class VideoFeed:
         self.frame_height = 0
         self.after_id = None  # Store the `after` call ID
         self.update_video_source()
-    
-        self.predict_time = 0
+        self.predict_time = "N/A"
 
     def load_video_files(self, folder):
         # Load all video file paths from the specified folder
@@ -151,7 +150,7 @@ class VideoFeed:
                     self.trigger_fall_detection()
                     
                 # Record prediction time
-                self.predict_time = time.time() - predict_start 
+                self.predict_time = round(((time.time() - self.predict_start) * 1000), 2) + " ms"
                     
                 self.frame_buffer.pop(0)
                 text = "Fall" if self.predictions_class else "No Fall"
