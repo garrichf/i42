@@ -5,6 +5,8 @@ import csv
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import cv2
 
+
+# Columns to remove from the DataFrame
 columns_to_remove = [
 'Left Eye_Y', 'Left Eye_X', 
 'Right Eye_Y', 'Right Eye_X', 
@@ -12,6 +14,7 @@ columns_to_remove = [
 'Right Ear_Y', 'Right Ear_X'
 ]
 
+# Columns for Keypoints
 keypoint_columns = [
     'Nose_X', 'Nose_Y', 
     'Left Shoulder_X', 'Left Shoulder_Y', 'Right Shoulder_X', 'Right Shoulder_Y',
@@ -22,6 +25,7 @@ keypoint_columns = [
     'Left Ankle_X', 'Left Ankle_Y', 'Right Ankle_X', 'Right Ankle_Y'
 ]
 
+# Columns for Min-Max normalization
 min_max_columns = [
     'Shoulder_Angle', 'Left_Torso_Incline_Angle', 
     'Right_Torso_Incline_Angle', 'Left_Elbow_Angle', 'Right_Elbow_Angle', 
@@ -47,6 +51,7 @@ z_score_columns = [
     'Right Ankle_X_acceleration', 'Right Ankle_Y_acceleration'
 ]
 
+
 min_val = 0
 max_val = 180
 
@@ -54,6 +59,21 @@ loaded_mean = np.load('constants/precomputed_mean.npy')
 loaded_std = np.load('constants/precomputed_std.npy')
 
 def process_data(keypoints_df, index, log_csv_filepath):
+    """
+    Processes the keypoints DataFrame by adding angles, calculating acceleration, 
+    and applying scaling transformations. The processed data is then appended to 
+    or saved in a CSV file.
+    Args:
+        keypoints_df (pd.DataFrame): DataFrame containing keypoints data.
+        index (int): Index to determine the processing flow. If greater than 0, 
+                     the processed data is appended to the CSV file; otherwise, 
+                     it is saved as a new CSV file.
+        log_csv_filepath (str): Filepath to the CSV file where the processed data 
+                                will be saved or appended.
+    Returns:
+        pd.DataFrame: The processed DataFrame with angles, acceleration, and 
+                      scaling transformations applied.
+    """
     log_df = pd.read_csv(log_csv_filepath)
     if index > 0:
         keypoints_df = keypoints_df.drop(columns=columns_to_remove)

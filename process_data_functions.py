@@ -20,6 +20,27 @@ def compute_angle(p1, p2, p3):
     return angle
 
 def add_angles(df):
+    """
+    Adds various angle calculations to the given DataFrame.
+    This function calculates several angles based on the coordinates of specific body points
+    and adds these angles as new columns to the DataFrame. The angles calculated include:
+    - Shoulder Angle: Angle between the left shoulder, right shoulder, and left hip.
+    - Left Torso Incline Angle: Angle between the left hip, left shoulder, and left elbow.
+    - Right Torso Incline Angle: Angle between the right hip, right shoulder, and right elbow.
+    - Left Elbow Angle: Angle between the left shoulder, left elbow, and left wrist.
+    - Right Elbow Angle: Angle between the right shoulder, right elbow, and right wrist.
+    - Left Hip-Knee Angle: Angle between the left hip, left knee, and left ankle.
+    - Right Hip-Knee Angle: Angle between the right hip, right knee, and right ankle.
+    - Left Knee-Ankle Angle: Angle between the left knee, left ankle, and left hip.
+    - Right Knee-Ankle Angle: Angle between the right knee, right ankle, and right hip.
+    - Head to Shoulders Angle: Angle between the nose, left shoulder, and right shoulder.
+    - Head to Hips Angle: Angle between the nose, left hip, and right hip.
+    Parameters:
+    df (pandas.DataFrame): DataFrame containing the coordinates of body points. The coordinates
+                           should be in columns named in the format '{point_name}_X' and '{point_name}_Y'.
+    Returns:
+    pandas.DataFrame: The original DataFrame with additional columns for each calculated angle.
+    """
     def calculate_angle(row, p1_name, p2_name, p3_name):
         p1 = (row[f'{p1_name}_X'], row[f'{p1_name}_Y'])
         p2 = (row[f'{p2_name}_X'], row[f'{p2_name}_Y'])
@@ -69,6 +90,19 @@ keypoint_columns = [
 
 # Function to calculate acceleration
 def calculate_acceleration(current_df, history_df, columns, current_index):
+    """
+    Calculate the velocity and acceleration for specified columns in the current DataFrame
+    based on the historical DataFrame.
+
+    Parameters:
+    current_df (pd.DataFrame): The current DataFrame containing the latest data.
+    history_df (pd.DataFrame): The historical DataFrame containing previous data.
+    columns (list of str): List of column names for which velocity and acceleration need to be calculated.
+    current_index (int): The index of the current row in the current DataFrame.
+
+    Returns:
+    pd.DataFrame: The updated current DataFrame with new columns for velocity and acceleration.
+    """
     for col in columns:
         # Initialize the columns for velocity and acceleration
         current_df[f'{col}_velocity'] = np.nan
@@ -92,6 +126,18 @@ def calculate_acceleration(current_df, history_df, columns, current_index):
 
 
 def remove_outliers_with_fixed_iqr(df, column, fixed_bounds):
+    """
+    Remove outliers from a specified column in a DataFrame using precomputed fixed bounds.
+
+    Parameters:
+    df (pandas.DataFrame): The input DataFrame.
+    column (str): The name of the column from which to remove outliers.
+    fixed_bounds (dict): A dictionary where keys are column names and values are tuples 
+                         containing the lower and upper bounds for outlier removal.
+
+    Returns:
+    pandas.DataFrame: The DataFrame with outliers capped based on the fixed bounds.
+    """
     if column not in fixed_bounds:
         # If the fixed bounds do not exist for this column, return the dataframe as-is
         return df
@@ -108,6 +154,15 @@ def remove_outliers_with_fixed_iqr(df, column, fixed_bounds):
 
 # Function to apply Min-Max Scaling with the fixed range [0, 180]
 def min_max_scale_fixed_range(column, min_val, max_val):
+    """
+    Scales a pandas Series to a fixed range [0, 1] based on provided minimum and maximum values.
+    Parameters:
+    column (pandas.Series): The data column to be scaled.
+    min_val (float): The minimum value for scaling.
+    max_val (float): The maximum value for scaling.
+    Returns:
+    pandas.Series: The scaled data column with values in the range [0, 1].
+    """
     # print(f"Before scaling {column.name}: Min = {column.min()}, Max = {column.max()}")
     
     scaled_column = (column - min_val) / (max_val - min_val)  # Scale to [0, 1]
@@ -118,11 +173,37 @@ def min_max_scale_fixed_range(column, min_val, max_val):
     return scaled_column
 
 def z_score_normalize(frame, precomputed_mean, precomputed_std):
+    """
+    Normalize the given DataFrame using z-score normalization.
+
+    Parameters:
+    frame (pd.DataFrame): The DataFrame to be normalized.
+    precomputed_mean (pd.Series or float): The mean value(s) used for normalization.
+    precomputed_std (pd.Series or float): The standard deviation value(s) used for normalization.
+
+    Returns:
+    pd.DataFrame: The normalized DataFrame.
+    """
     normalized_frame = (frame - precomputed_mean) / precomputed_std
     return normalized_frame
 
 # for drawing bounding box
 def find_min_max_coordinates(df):
+    """
+    Finds the minimum and maximum X and Y coordinates from a DataFrame containing body part coordinates.
+    Args:
+        df (pd.DataFrame): A DataFrame containing columns for X and Y coordinates of various body parts.
+                           The DataFrame is assumed to contain a single row of data.
+    Returns:
+        tuple: A tuple containing four values:
+            - min_x (float): The minimum X coordinate value.
+            - min_y (float): The minimum Y coordinate value.
+            - max_x (float): The maximum X coordinate value.
+            - max_y (float): The maximum Y coordinate value.
+    Note:
+        The function replaces any -1 values in the DataFrame with NaN before calculating the min and max values.
+        This is to ignore any invalid or missing coordinates represented by -1.
+    """
     # List of X and Y coordinate columns
     x_columns = ['Nose_X', 'Left Shoulder_X', 'Right Shoulder_X', 'Left Elbow_X', 'Right Elbow_X',
                  'Left Wrist_X', 'Right Wrist_X', 'Left Hip_X', 'Right Hip_X', 'Left Knee_X',
@@ -148,6 +229,21 @@ def find_min_max_coordinates(df):
     return min_x, min_y, max_x, max_y
 
 def draw_keypoints_on_frame(df, frame):
+    """
+    Draws keypoints on a given video frame based on coordinates from a dataframe.
+    Parameters:
+    df (pandas.DataFrame): DataFrame containing normalized keypoint coordinates.
+                           The DataFrame should have columns for each keypoint in the format:
+                           'Keypoint_X' and 'Keypoint_Y' (e.g., 'Nose_X', 'Nose_Y').
+    frame (numpy.ndarray): The video frame on which keypoints will be drawn. 
+                           This should be a 3-channel image (e.g., from OpenCV).
+    Returns:
+    numpy.ndarray: The video frame with keypoints drawn on it.
+    Notes:
+    - Keypoints are drawn as red circles with a radius proportional to the frame height.
+    - Keypoint names are drawn as white text above each keypoint.
+    - Coordinates (0, 0) are ignored as they may represent missing keypoints.
+    """
     # Define the keypoint columns
     keypoint_columns = {
         'Nose': ('Nose_X', 'Nose_Y'),
@@ -194,11 +290,31 @@ def draw_keypoints_on_frame(df, frame):
     return frame
 
 def history_csv(row, history_output_file):
+    """
+    Appends the last row of a DataFrame to a CSV file.
+
+    Parameters:
+    row (pandas.DataFrame): The DataFrame containing the row to be appended.
+    history_output_file (str): The file path of the CSV file to append the row to.
+
+    Returns:
+    None
+    """
     with open(history_output_file, 'a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(row.iloc[-1])
         
 def initialize_log_output(history_csv_file, processed_output_csv):
+    """
+    Initializes log output by creating necessary CSV files if they do not exist.
+    This function creates a 'logs' directory if it does not already exist. It then checks for the existence of two CSV files:
+    `history_csv_file` and `processed_output_csv`. If these files do not exist, it creates them and writes the appropriate headers.
+    Parameters:
+    history_csv_file (str): The file path for the history CSV file.
+    processed_output_csv (str): The file path for the processed output CSV file.
+    Returns:
+    None
+    """
     
     # Specify the path of the folder you want to create
     folder_path = 'logs'
@@ -256,6 +372,20 @@ def initialize_log_output(history_csv_file, processed_output_csv):
             ])
             
 def f1_score(y_true, y_pred):
+    """
+    Computes the F1 score, which is the harmonic mean of precision and recall.
+    Args:
+        y_true (tensor): Ground truth binary labels.
+        y_pred (tensor): Predicted binary labels.
+    Returns:
+        tensor: F1 score.
+    Raises:
+        AssertionError: If y_true and y_pred do not have the same shape.
+    Notes:
+        - The function assumes that y_true and y_pred are tensors.
+        - The function clips the values of y_true and y_pred to be between 0 and 1.
+        - The function uses Keras backend functions to perform the calculations.
+    """
     # Ensure y_true and y_pred are of the same shape
     print(f'y_true shape: {y_true.shape}, y_pred shape: {y_pred.shape}')  # Debugging line
     y_pred = K.squeeze(y_pred, axis=-1)  # Remove the last dimension if it's 1

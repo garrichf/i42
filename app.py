@@ -25,6 +25,27 @@ root.grid_rowconfigure(2, weight=1)
 stop_sound_event = threading.Event()
 
 def play_fall_sound():
+    """
+    Plays a looping fall sound using the Pygame mixer.
+
+    This function loads and plays a sound file in a loop. It also sets up a 
+    mechanism to stop the sound when a specific event is triggered.
+
+    The function performs the following steps:
+    1. Clears the stop_sound_event to ensure the sound can play.
+    2. Loads the sound file "sound/700-hz-beeps-86815.mp3".
+    3. Plays the sound file in an infinite loop.
+    4. Defines an inner function check_stop() that checks if the stop_sound_event 
+       is set. If the event is set, it stops the sound. Otherwise, it schedules 
+       another check after 100 milliseconds.
+    5. Schedules the first call to check_stop() after 100 milliseconds.
+
+    Note:
+        - The sound will continue to play until stop_sound_event is set.
+        - The root object must be a Tkinter root window or similar that supports 
+          the after() method for scheduling.
+
+    """
     stop_sound_event.clear()
     pygame.mixer.music.load("sound/700-hz-beeps-86815.mp3")
     pygame.mixer.music.play(-1)  
@@ -49,6 +70,19 @@ fall_detected_mode = True
 fall_event_active = False
 
 def toggle_switch():
+    """
+    Toggles the state of a switch UI component.
+
+    This function changes the appearance of a toggle switch based on its current state.
+    When the switch is off, it changes the button color to a dark shade, adjusts the button
+    position, and sets the label colors accordingly. When the switch is on, it changes the 
+    button color to white, adjusts the button position, and sets the label colors accordingly.
+    
+    The function also updates the state of the toggle switch to reflect the new state.
+    
+    Returns:
+        None
+    """
     if toggle_state.get() == False:
         toggle_canvas.itemconfig(toggle_button, fill="#2B3A42")  
         toggle_canvas.coords(toggle_button, 22, 4, 36, 18)  
@@ -64,6 +98,30 @@ def toggle_switch():
     toggle_state.set(not toggle_state.get())
 
 def trigger_fall_detection():
+    """
+    Triggers the fall detection alert process.
+
+    This function checks if a fall event is already active. If not, it sets the fall event as active and proceeds to 
+    display a popup alert with fall detection details such as the time of the fall, response time, and confidence score. 
+    It also starts a thread to play a fall alert sound and logs the fall detection event in the history log.
+
+    Global Variables:
+    - sound_thread: Thread object for playing the fall alert sound.
+    - fall_event_active: Boolean flag indicating if a fall event is currently active.
+
+    Popup Details:
+    - Displays "Fall Detected!" message.
+    - Shows the time of the fall.
+    - Shows the response time.
+    - Shows the confidence score of the fall detection.
+    - Automatically closes after 10 seconds.
+
+    Threads:
+    - Starts a thread to play the fall alert sound.
+
+    History Log:
+    - Adds a message to the history log indicating the time of the fall detection.
+    """
     global sound_thread, fall_event_active
     if fall_event_active:
         return  
@@ -104,6 +162,23 @@ def trigger_fall_detection():
             history_log.add_message(history_message)
 
 def close_popup(popup):
+    """
+    Closes the given popup window and stops any active sound thread.
+
+    Args:
+        popup: The popup window object to be closed.
+
+    Globals:
+        sound_thread: A global variable representing the currently running sound thread.
+        stop_sound_event: A global event used to signal the sound thread to stop.
+        fall_event_active: A global flag indicating whether a fall event is active.
+
+    Behavior:
+        - Destroys the popup window.
+        - If a sound thread is active, signals it to stop and waits for it to terminate.
+        - Sets the sound_thread to None.
+        - Sets the fall_event_active flag to False.
+    """
     global sound_thread, fall_event_active
     popup.destroy()
     if sound_thread is not None:
@@ -113,12 +188,26 @@ def close_popup(popup):
     fall_event_active = False
    
 def on_closing():
+    """
+    Handles the closing event of the application.
+
+    This function performs the following actions:
+    1. Stops the fall sound by calling the stop_fall_sound() function.
+    2. Opens the settings file in write mode and clears its contents.
+    3. Destroys the root window, effectively closing the application.
+    """
     stop_fall_sound()
     with open(settings.settings_file, "w") as file:
         file.write("")
     root.destroy()
 
 def stop_fall_sound():
+    """
+    Stops the fall sound by setting the stop_sound_event and stopping the music playback.
+
+    This function sets the stop_sound_event, which is presumably used to signal that the fall sound should stop.
+    It then stops the music playback using pygame's mixer module.
+    """
     stop_sound_event.set()  
     pygame.mixer.music.stop()
 

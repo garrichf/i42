@@ -14,6 +14,79 @@ import os
 import time
 
 class VideoFeed:
+    """
+    A class to handle video feed for fall detection using machine learning models.
+    Attributes:
+    -----------
+    parent : tkinter.Tk
+        The parent tkinter window.
+    toggle_state_var : tkinter.BooleanVar
+        A tkinter variable to toggle between live feed and video files.
+    trigger_fall_detection : function
+        A callback function to trigger when a fall is detected.
+    log_csv_filepath : str
+        Path to the log CSV file.
+    processed_output_csv : str
+        Path to the processed output CSV file.
+    video_label : tkinter.Label
+        Label widget to display the video feed.
+    cap : cv2.VideoCapture
+        Video capture object.
+    video_folder : str
+        Folder containing video files.
+    video_files : list
+        List of video file paths.
+    current_video_index : int
+        Index of the current video file being played.
+    is_live : bool
+        Flag to indicate if live feed is being used.
+    frame_counter : int
+        Counter for the number of frames processed.
+    model : keras.Model
+        Loaded machine learning model for fall detection.
+    pose_model_used : str
+        Pose estimation model used (YOLO, MEDIAPIPE, MOVENET).
+    confidence_threshold : float
+        Confidence threshold for fall detection.
+    sequence_length : int
+        Length of the sequence of frames for prediction.
+    frame_buffer : list
+        Buffer to store frames for prediction.
+    predictions_class : int
+        Class of the prediction (fall or no fall).
+    fall_detected_buffer : int
+        Buffer counter for fall detection.
+    fall_counter : int
+        Counter for the number of falls detected.
+    box_color : tuple
+        Color of the bounding box for detected falls.
+    index : int
+        Index of the current frame.
+    frame_width : int
+        Width of the video frame.
+    frame_height : int
+        Height of the video frame.
+    after_id : int
+        ID of the `after` call for tkinter.
+    predict_time : str
+        Time taken for prediction.
+    Methods:
+    --------
+    load_video_files(folder):
+        Load all video file paths from the specified folder.
+    clear_frame_buffer():
+        Clear the frame buffer.
+    update_video_source():
+        Update the video source (live feed or video file).
+    stop_video():
+        Stop the current video feed.
+    reload_settings():
+        Reload settings and reinitialize the video feed.
+    process_frame(frame, index):
+        Process a single frame for pose estimation and fall detection.
+    show_frame():
+        Display the current frame in the video feed.
+    """
     def __init__(self, parent, toggle_state_var, trigger_fall_detection):
         self.trigger_fall_detection = trigger_fall_detection
         self.log_csv_filepath = SETTINGS.LOG_FILEPATH
@@ -48,6 +121,15 @@ class VideoFeed:
         self.predict_time = "N/A"
 
     def load_video_files(self, folder):
+        """
+        Load all video file paths from the specified folder.
+
+        Args:
+            folder (str): The path to the folder containing video files.
+
+        Returns:
+            list: A list of file paths to the video files in the specified folder.
+        """
         # Load all video file paths from the specified folder
         video_files = [os.path.join(folder, f) for f in os.listdir(folder) if f.endswith(('.mp4', '.avi', '.mov'))]
         print(f"Loaded video files: {video_files}")  # Debug statement
@@ -58,6 +140,32 @@ class VideoFeed:
         self.frame_buffer = []
 
     def update_video_source(self):
+        """
+        Updates the video source for the video feed.
+
+        This method stops the current video, checks whether the video source should be live or from a file,
+        and initializes the video capture accordingly. If the source is live, it attempts to open the live
+        video stream. If the source is from a file, it loads the next video file in the list and updates the
+        current video index. It also handles errors in opening the video streams.
+
+        Attributes:
+            self.is_live (bool): Indicates whether the video source is live or from a file.
+            self.cap (cv2.VideoCapture): The video capture object.
+            self.frame_width (float): The width of the video frames.
+            self.frame_height (float): The height of the video frames.
+            self.index (int): The frame index for the current video.
+            self.predictions_class (int): The class of the detected fall in the previous video.
+
+        Methods:
+            self.stop_video(): Stops the current video.
+            self.clear_frame_buffer(): Clears the buffer frames for every new video playback.
+            self.show_frame(): Displays the next frame after a delay.
+
+        Debug Statements:
+            Prints the path of the video file being loaded.
+            Prints the next video index.
+            Prints error messages if the video stream cannot be opened or initialized.
+        """
         self.stop_video()  # Stop the current video before loading the next one
 
         self.is_live = self.toggle_state_var.get()
@@ -92,6 +200,17 @@ class VideoFeed:
             print("Error: Video stream is not initialized.")
 
     def stop_video(self):
+        """
+        Stops the video feed by releasing the video capture object and cancelling any scheduled updates.
+
+        This method performs the following actions:
+        1. Releases the video capture object if it is currently active.
+        2. Cancels any scheduled updates using the `after_cancel` method of the parent widget.
+
+        Attributes:
+            self.cap (cv2.VideoCapture or None): The video capture object. Set to None after release.
+            self.after_id (str or None): The identifier for the scheduled update. Set to None after cancellation.
+        """
         if self.cap is not None:
             self.cap.release()
             self.cap = None
@@ -100,6 +219,17 @@ class VideoFeed:
             self.after_id = None
 
     def reload_settings(self):
+        """
+        Reloads the settings for the video feed.
+
+        This method performs the following actions:
+        1. Stops the current video feed.
+        2. Loads a new model for fall detection with custom objects.
+        3. Resets the frame counter and index.
+        4. Updates the pose model and confidence threshold from the settings.
+        5. Clears the frame buffer.
+        6. Updates the video source.
+        """
         self.stop_video() 
         self.model = load_model('falldetect_main.keras', custom_objects={'f1_score': process_data.process_data_functions.f1_score})
         self.frame_counter = 0
@@ -110,6 +240,20 @@ class VideoFeed:
         self.update_video_source()
 
     def process_frame(self, frame, index):
+        """
+        Processes a video frame for pose estimation and fall detection.
+        Args:
+            frame (numpy.ndarray): The video frame to be processed.
+            index (int): The index of the current frame in the video sequence.
+        Returns:
+            numpy.ndarray: The processed video frame with keypoints and bounding box drawn.
+        The function performs the following steps:
+        1. Pose estimation using the specified model (YOLO, MEDIAPIPE, or MOVENET).
+        2. Processes the keypoints and performs fall detection.
+        3. Draws keypoints and bounding box on the frame.
+        4. Updates the frame buffer and performs fall detection based on the sequence of frames.
+        5. Adds text annotations to the frame indicating fall detection status and frame index.
+        """
         # Perform pose estimation
         if self.pose_model_used == "YOLO":
             keypoints = YOLO.YOLO_pose(frame)
@@ -189,6 +333,18 @@ class VideoFeed:
         return frame_with_keypoints
     
     def show_frame(self):
+        """
+        Continuously captures and displays video frames.
+
+        This method reads a frame from the video capture device, processes it,
+        converts it to an RGB image, and updates the video label with the new frame.
+        If the video capture is successful, it schedules the next frame capture after
+        a short delay. If the video capture fails (e.g., the video ends), it updates
+        the video source to load the next video.
+
+        Returns:
+            None
+        """
         ret, frame = self.cap.read()
         if ret:
             self.process_frame(frame, self.index)
@@ -204,6 +360,18 @@ class VideoFeed:
 
     
     def stop_video(self):
+        """
+        Stops the video feed by releasing the video capture object and cancelling any scheduled updates.
+
+        This method performs the following actions:
+        1. Releases the video capture object if it is currently active.
+        2. Cancels any scheduled updates to the video feed.
+
+        Attributes:
+            cap (cv2.VideoCapture or None): The video capture object.
+            after_id (str or None): The identifier for the scheduled update.
+            parent (tkinter.Widget): The parent widget used for scheduling updates.
+        """
         if self.cap is not None:
             self.cap.release()
             self.cap = None
@@ -212,6 +380,17 @@ class VideoFeed:
             self.after_id = None
 
     def reload_settings(self):
+        """
+        Reloads the settings for the video feed.
+
+        This method performs the following actions:
+        1. Stops the current video feed.
+        2. Loads the fall detection model with custom objects.
+        3. Resets the frame counter and index.
+        4. Updates the pose model and confidence threshold from settings.
+        5. Clears the frame buffer.
+        6. Updates the video source.
+        """
         self.stop_video() 
         self.model = load_model('falldetect_main.keras', custom_objects={'f1_score': process_data.process_data_functions.f1_score})
         self.frame_counter = 0

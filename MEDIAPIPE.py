@@ -5,6 +5,7 @@ import pandas as pd
 
 POSE_CONFIDENCE_THRESHOLD = 0.25
 
+# Load the MediaPipe Pose model
 mp_pose = mp.solutions.pose
 model = mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
@@ -39,6 +40,15 @@ keypoint_columns = [
 ]
 
 def process_frame(frame):
+    """
+    Processes a single video frame to extract pose keypoints using a pose estimation model.
+    Args:
+        frame (numpy.ndarray): The input video frame in BGR format.
+    Returns:
+        pandas.DataFrame: A DataFrame containing the extracted keypoints for the frame. 
+                          If no keypoints are detected, the DataFrame will contain NaN values.
+    """
+
     df = pd.DataFrame(columns=keypoint_names)
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         
@@ -76,6 +86,16 @@ def process_frame(frame):
     return df
 
 def MEDIAPIPE_pose(frame):
+    """
+    Processes a video frame to extract pose keypoints using the MEDIAPIPE library.
+
+    Args:
+        frame: A single frame of video data to be processed.
+
+    Returns:
+        keypoints: The extracted pose keypoints from the given frame.
+    """
+    
     print("MEDIAPIPE is Running")
     keypoints = process_frame(frame)
     return keypoints
