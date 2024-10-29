@@ -1,5 +1,6 @@
 # Virtual Environment
-Venv/
+.venv/
+venv/
 i42/
 
 # Python spcecfic
