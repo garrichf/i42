@@ -47,6 +47,7 @@ protobuf==4.25.5
 psutil==6.0.0
 py-cpuinfo==9.0.0
 pycparser==2.22
+pygame==2.6.1
 Pygments==2.18.0
 pyparsing==3.1.4
 python-dateutil==2.9.0.post0
