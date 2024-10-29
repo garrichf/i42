@@ -45,6 +45,8 @@ class VideoFeed:
         self.frame_height = 0
         self.after_id = None  # Store the `after` call ID
         self.update_video_source()
+    
+        self.predict_time = 0
 
     def load_video_files(self, folder):
         # Load all video file paths from the specified folder
@@ -135,7 +137,7 @@ class VideoFeed:
                 data_array = np.vstack(self.frame_buffer).astype(np.float32).reshape(1, self.sequence_length, 63)
                 
                 # Record prediction start time
-                predict_start= time.time()
+                self.predict_start= time.time()
                 
                 predictions = self.model.predict(data_array)
                 
