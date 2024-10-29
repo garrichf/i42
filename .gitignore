@@ -1,0 +1,11 @@
+# Virtual Environment
+.venv/
+venv/
+i42/
+
+# Python spcecfic
+__pycache__/
+
+# Stuff
+logs/
+settingpara.txt
