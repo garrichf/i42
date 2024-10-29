@@ -1,12 +1,12 @@
 # COS40006 - Computing Technology Project B
-## Industry Project i42 - Human Fall Detection using RGB Camera
+## Industry Project i42 - Human Fall Detection using RGB Camera 📸
 This is the main repository for the industry project i42 from COS40005 Computing Technology Project A and COS40006 Computing Technology Project B.
 
-## Overview
+## 🌟 Overview
 
 This project is a fall detection system that uses an RGB camera to detect falls in real-time. The system leverages machine learning models for pose estimation and fall detection, and it provides a graphical user interface (GUI) for easy interaction.
 
-## Features
+## ✨ Key Features
 
 - **Real-time Fall Detection**: Detects falls using live video feed or pre-recorded videos.
 - **Pose Estimation**: Supports multiple pose estimation models including YOLO, MediaPipe, and MoveNet.
@@ -25,7 +25,7 @@ This project is a fall detection system that uses an RGB camera to detect falls 
 
 2. **Create a virtual environment**:
     ```sh
-    python -m venv venv
+    python3.10 -m venv venv
     source venv/bin/activate  # On Windows use `venv\Scripts\activate`
     ```
 
