@@ -150,7 +150,7 @@ class VideoFeed:
                     self.trigger_fall_detection()
                     
                 # Record prediction time
-                self.predict_time = round(((time.time() - self.predict_start) * 1000), 2) + " ms"
+                self.predict_time = str(round(((time.time() - self.predict_start) * 1000), 2)) + " ms"
                     
                 self.frame_buffer.pop(0)
                 text = "Fall" if self.predictions_class else "No Fall"
