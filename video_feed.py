@@ -350,6 +350,12 @@ class VideoFeed:
             self.process_frame(frame, self.index)
             self.index += 1
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            container_width = self.video_label.winfo_width()
+            container_height = self.video_label.winfo_height()
+
+            if container_width > 0 and container_height > 0:
+                frame = cv2.resize(frame, (container_width, container_height), interpolation=cv2.INTER_AREA)
+
             img = Image.fromarray(frame)
             imgtk = ImageTk.PhotoImage(image=img)
             self.video_label.imgtk = imgtk
