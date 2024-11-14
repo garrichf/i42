@@ -28,7 +28,7 @@ class HistoryLog:
         self.history_label.pack(anchor="w", padx=10)
 
         # Create a text widget to display history messages
-        self.text_widget = tk.Text(self.history_frame, height = 10, bg="#1C252B", fg="white", font=("Arial", 10))
+        self.text_widget = tk.Text(self.history_frame, height = 10, bg="#1C252B", fg="white", font=("Arial", 15))
         self.text_widget.pack(fill="both", expand=True, padx=10, pady=5)
         self.text_widget.config(state=tk.DISABLED)
 

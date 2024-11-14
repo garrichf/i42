@@ -148,9 +148,9 @@ def trigger_fall_detection():
             popup.geometry(f"{window_width}x{window_height}+{x_cordinate}+{y_cordinate}")
 
             Label(popup, text="Fall Detected!", fg="white", bg="#3E4A52", font=("Arial", 14, "bold")).pack(pady=10)
-            Label(popup, text=f"Fall Time: {current_time}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
-            Label(popup, text=f"Response Time: {response_time}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
-            Label(popup, text=f"Confidence Score: {fall_probality}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
+            Label(popup, text=f"Fall Time: {current_time}", fg="white", bg="#3E4A52", font=("Arial", 12)).pack(pady=5)
+            Label(popup, text=f"Response Time: {response_time}", fg="white", bg="#3E4A52", font=("Arial", 12)).pack(pady=5)
+            Label(popup, text=f"Confidence Score: {fall_probality}", fg="white", bg="#3E4A52", font=("Arial", 12)).pack(pady=5)
             #Label(popup, text=f"Confidence Rate: {confidence_value}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
             #Label(popup, text=f"Confidnece Score: {fall_probality}", fg="white", bg="#3E4A52", font=("Arial", 10)).pack(pady=5)
             popup.after(10000, lambda: close_popup(popup))

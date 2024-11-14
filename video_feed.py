@@ -272,7 +272,7 @@ class VideoFeed:
         if self.predictions_class and self.fall_detected_buffer < 30:
             self.fall_detected_buffer += 1
             self.frame_buffer.pop(0)
-            text = "Fall Detected (Buffering)"
+            text = "Fall Detected"
             color = (0, 0, 255)
             cv2.putText(frame_with_keypoints, text, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2, cv2.LINE_AA)
         else:

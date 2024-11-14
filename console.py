@@ -12,7 +12,7 @@ class Console:
         self.console_label.pack(anchor="w", padx=10)
 
     
-        self.text_widget = tk.Text(self.console_frame, height=10, bg="#1C252B", fg="white", font=("Arial", 10))
+        self.text_widget = tk.Text(self.console_frame, height=10, bg="#1C252B", fg="white", font=("Arial", 15))
         self.text_widget.pack(fill="both", expand=True, padx=10, pady=5)
 
         # Disable editing in the text widget
